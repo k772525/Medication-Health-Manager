@@ -29,23 +29,55 @@ def _upload_to_gcs(image_bytes, suffix='annotated.jpg'):
     
     try:
         print(f"    - [Kevin模型] 開始上傳圖片到 GCS，大小: {len(image_bytes)} bytes")
-        storage_client = storage.Client()
-        bucket = storage_client.bucket(GCS_BUCKET_NAME)
-        filename = f"{GCS_PATH_PREFIX}{uuid.uuid4()}_{suffix}"
-        blob = bucket.blob(filename)
+        print(f"    - [Kevin模型] 目標 Bucket: {GCS_BUCKET_NAME}")
         
         # 確保 image_bytes 是 bytes 類型
         if isinstance(image_bytes, str):
             print("    - [Kevin模型] 警告：image_bytes 是字符串，嘗試轉換為 bytes")
             image_bytes = image_bytes.encode('utf-8')
         
+        # 初始化 Storage Client
+        storage_client = storage.Client()
+        
+        # 檢查 bucket 是否存在
+        try:
+            bucket = storage_client.bucket(GCS_BUCKET_NAME)
+            # 測試 bucket 存取權限
+            bucket.reload()
+            print(f"    - [Kevin模型] Bucket {GCS_BUCKET_NAME} 存在且可存取")
+        except Exception as bucket_error:
+            print(f"    - [Kevin模型] Bucket 存取失敗: {bucket_error}")
+            print(f"    - [Kevin模型] 請確認：1) Bucket 名稱正確 2) 服務帳戶有存取權限")
+            return None
+        
+        filename = f"{GCS_PATH_PREFIX}{uuid.uuid4()}_{suffix}"
+        print(f"    - [Kevin模型] 檔案路徑: {filename}")
+        
+        blob = bucket.blob(filename)
         blob.upload_from_string(image_bytes, content_type='image/jpeg')
+        
+        # 設定公開讀取權限
+        blob.make_public()
+        
         public_url = f"https://storage.googleapis.com/{GCS_BUCKET_NAME}/{filename}"
         print(f"    - [Kevin模型] GCS 上傳成功：{public_url}")
         return public_url
+        
     except Exception as e:
         print(f"    - [Kevin模型] GCS 上傳失敗 (這不會影響辨識功能): {e}")
         print(f"    - [Kevin模型] 錯誤詳情: {type(e).__name__}: {str(e)}")
+        
+        # 更詳細的錯誤診斷
+        if "not found" in str(e).lower():
+            print("    - [Kevin模型] 診斷：可能是 Bucket 不存在或無權限存取")
+            print("    - [Kevin模型] 建議：檢查 GCS_BUCKET_NAME 和服務帳戶權限")
+        elif "forbidden" in str(e).lower() or "403" in str(e):
+            print("    - [Kevin模型] 診斷：權限不足")
+            print("    - [Kevin模型] 建議：確認服務帳戶有 Storage Object Admin 權限")
+        elif "unauthorized" in str(e).lower() or "401" in str(e):
+            print("    - [Kevin模型] 診斷：認證失敗")
+            print("    - [Kevin模型] 建議：檢查 GOOGLE_APPLICATION_CREDENTIALS 設定")
+        
         import traceback
         print(f"    - [Kevin模型] 錯誤堆疊: {traceback.format_exc()}")
         return None
