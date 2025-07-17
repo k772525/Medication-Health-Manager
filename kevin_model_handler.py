@@ -37,79 +37,44 @@ KEVIN_API_URL = "https://detect-api-self.wenalyzer.xyz/detect"
 
 def _upload_to_gcs(image_bytes, suffix='annotated.jpg'):
     """
-    將圖片(bytes)上傳到 Google Cloud Storage 並回傳公開網址。
-    這是 kevin_api.py 中的輔助函式。
-    如果上傳失敗，返回 None 但不影響主要功能。
+    將圖片上傳到 GCS，使用 Signed URL 方式避免 ACL 問題
     """
     if not GCS_BUCKET_NAME:
         print("    - [Kevin模型] GCS_BUCKET_NAME 環境變數未設定，跳過圖片上傳")
-        print("    - [Kevin模型] 💡 提示：要啟用圖片上傳功能，請參考 GCS_SETUP_GUIDE.md")
         return None
     
     try:
         print(f"    - [Kevin模型] 開始上傳圖片到 GCS，大小: {len(image_bytes)} bytes")
-        print(f"    - [Kevin模型] 目標 Bucket: {GCS_BUCKET_NAME}")
         
         # 確保 image_bytes 是 bytes 類型
         if isinstance(image_bytes, str):
-            print("    - [Kevin模型] 警告：image_bytes 是字符串，嘗試轉換為 bytes")
             image_bytes = image_bytes.encode('utf-8')
         
         # 初始化 Storage Client
-        print(f"    - [Kevin模型] 初始化 Google Cloud Storage Client...")
-        try:
-            # 在 Cloud Run 環境中，會自動使用服務帳戶認證
-            storage_client = storage.Client()
-            print(f"    - [Kevin模型] Storage Client 初始化成功")
-        except Exception as client_error:
-            print(f"    - [Kevin模型] Storage Client 初始化失敗: {client_error}")
-            if "DefaultCredentialsError" in str(client_error):
-                print("    - [Kevin模型] 診斷：認證設定問題")
-                print("    - [Kevin模型] 建議：檢查 Cloud Run 服務帳戶設定")
-            raise client_error
-        
-        # 檢查 bucket 是否存在
-        try:
-            bucket = storage_client.bucket(GCS_BUCKET_NAME)
-            # 測試 bucket 存取權限
-            bucket.reload()
-            print(f"    - [Kevin模型] Bucket {GCS_BUCKET_NAME} 存在且可存取")
-        except Exception as bucket_error:
-            print(f"    - [Kevin模型] Bucket 存取失敗: {bucket_error}")
-            print(f"    - [Kevin模型] 請確認：1) Bucket 名稱正確 2) 服務帳戶有存取權限")
-            return None
+        storage_client = storage.Client()
+        bucket = storage_client.bucket(GCS_BUCKET_NAME)
         
         filename = f"{GCS_PATH_PREFIX}{uuid.uuid4()}_{suffix}"
-        print(f"    - [Kevin模型] 檔案路徑: {filename}")
-        
         blob = bucket.blob(filename)
+        
+        # 上傳檔案，不設定 ACL
         blob.upload_from_string(image_bytes, content_type='image/jpeg')
         
-        # 完全跳過 ACL 設定，因為 Bucket 啟用了 Uniform Bucket-level Access
-        # 檔案權限由 Bucket 層級的 IAM 政策控制
-        print(f"    - [Kevin模型] 檔案上傳完成，使用 Bucket 層級權限控制")
+        # 使用 Signed URL 提供臨時存取，避免 ACL 問題
+        from datetime import datetime, timedelta
+        expiration = datetime.utcnow() + timedelta(hours=24)  # 24小時有效期
         
-        public_url = f"https://storage.googleapis.com/{GCS_BUCKET_NAME}/{filename}"
-        print(f"    - [Kevin模型] GCS 上傳成功：{public_url}")
-        return public_url
+        signed_url = blob.generate_signed_url(
+            version="v4",
+            expiration=expiration,
+            method="GET"
+        )
+        
+        print(f"    - [Kevin模型] GCS 上傳成功，使用 Signed URL")
+        return signed_url
         
     except Exception as e:
-        print(f"    - [Kevin模型] GCS 上傳失敗 (這不會影響辨識功能): {e}")
-        print(f"    - [Kevin模型] 錯誤詳情: {type(e).__name__}: {str(e)}")
-        
-        # 更詳細的錯誤診斷
-        if "not found" in str(e).lower():
-            print("    - [Kevin模型] 診斷：可能是 Bucket 不存在或無權限存取")
-            print("    - [Kevin模型] 建議：檢查 GCS_BUCKET_NAME 和服務帳戶權限")
-        elif "forbidden" in str(e).lower() or "403" in str(e):
-            print("    - [Kevin模型] 診斷：權限不足")
-            print("    - [Kevin模型] 建議：確認服務帳戶有 Storage Object Admin 權限")
-        elif "unauthorized" in str(e).lower() or "401" in str(e):
-            print("    - [Kevin模型] 診斷：認證失敗")
-            print("    - [Kevin模型] 建議：檢查 GOOGLE_APPLICATION_CREDENTIALS 設定")
-        
-        import traceback
-        print(f"    - [Kevin模型] 錯誤堆疊: {traceback.format_exc()}")
+        print(f"    - [Kevin模型] GCS 上傳失敗: {e}")
         return None
 
 def detect_pills(pil_image):
