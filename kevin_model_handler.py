@@ -60,18 +60,12 @@ def _upload_to_gcs(image_bytes, suffix='annotated.jpg'):
         # 上傳檔案，不設定 ACL
         blob.upload_from_string(image_bytes, content_type='image/jpeg')
         
-        # 使用 Signed URL 提供臨時存取，避免 ACL 問題
-        from datetime import datetime, timedelta
-        expiration = datetime.utcnow() + timedelta(hours=24)  # 24小時有效期
+        # 直接使用公開 URL 格式，完全避開 ACL 檢查
+        # 由於 Bucket 已設定 allUsers:objectViewer 權限，這個 URL 可以直接存取
+        public_url = f"https://storage.googleapis.com/{GCS_BUCKET_NAME}/{filename}"
         
-        signed_url = blob.generate_signed_url(
-            version="v4",
-            expiration=expiration,
-            method="GET"
-        )
-        
-        print(f"    - [Kevin模型] GCS 上傳成功，使用 Signed URL")
-        return signed_url
+        print(f"    - [Kevin模型] GCS 上傳成功，使用公開 URL")
+        return public_url
         
     except Exception as e:
         print(f"    - [Kevin模型] GCS 上傳失敗: {e}")
