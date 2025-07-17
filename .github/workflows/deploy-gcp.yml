@@ -137,7 +137,7 @@ jobs:
           --region $REGION \
           --allow-unauthenticated \
           --memory 2Gi \
-          --cpu 2 \
+          --cpu 1 \
           --timeout 900 \
           --concurrency 10 \
           --max-instances 5 \

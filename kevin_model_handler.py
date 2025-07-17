@@ -85,8 +85,17 @@ def _upload_to_gcs(image_bytes, suffix='annotated.jpg'):
         blob = bucket.blob(filename)
         blob.upload_from_string(image_bytes, content_type='image/jpeg')
         
-        # 設定公開讀取權限
-        blob.make_public()
+        # 檢查 bucket 是否啟用了 Uniform Bucket-level Access
+        try:
+            # 嘗試設定公開讀取權限
+            blob.make_public()
+            print(f"    - [Kevin模型] 已設定檔案為公開讀取")
+        except Exception as acl_error:
+            if "uniform bucket-level access" in str(acl_error).lower():
+                print(f"    - [Kevin模型] Bucket 啟用了 Uniform Bucket-level Access，跳過 ACL 設定")
+                print(f"    - [Kevin模型] 建議：在 Bucket 層級設定公開讀取權限")
+            else:
+                print(f"    - [Kevin模型] ACL 設定失敗: {acl_error}")
         
         public_url = f"https://storage.googleapis.com/{GCS_BUCKET_NAME}/{filename}"
         print(f"    - [Kevin模型] GCS 上傳成功：{public_url}")
