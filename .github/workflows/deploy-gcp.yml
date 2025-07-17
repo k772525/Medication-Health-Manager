@@ -142,7 +142,27 @@ jobs:
           --concurrency 10 \
           --max-instances 5 \
           --min-instances 1 \
-          --set-env-vars="LINE_CHANNEL_ACCESS_TOKEN=${{ secrets.LINE_CHANNEL_ACCESS_TOKEN }},LINE_CHANNEL_SECRET=${{ secrets.LINE_CHANNEL_SECRET }},YOUR_BOT_ID=${{ secrets.YOUR_BOT_ID }},LIFF_CHANNEL_ID=${{ secrets.LIFF_CHANNEL_ID }},LIFF_ID_CAMERA=${{ secrets.LIFF_ID_CAMERA }},LIFF_ID_EDIT=${{ secrets.LIFF_ID_EDIT }},LIFF_ID_PRESCRIPTION_REMINDER=${{ secrets.LIFF_ID_PRESCRIPTION_REMINDER }},LIFF_ID_MANUAL_REMINDER=${{ secrets.LIFF_ID_MANUAL_REMINDER }},LIFF_ID_HEALTH_FORM=${{ secrets.LIFF_ID_HEALTH_FORM }},LINE_LOGIN_CHANNEL_ID=${{ secrets.LINE_LOGIN_CHANNEL_ID }},LINE_LOGIN_CHANNEL_SECRET=${{ secrets.LINE_LOGIN_CHANNEL_SECRET }},GEMINI_API_KEY=${{ secrets.GEMINI_API_KEY }},GCS_BUCKET_NAME=${{ secrets.GCS_BUCKET_NAME }},GOOGLE_APPLICATION_CREDENTIALS=${{ secrets.GOOGLE_APPLICATION_CREDENTIALS }},DB_HOST=${{ secrets.DB_HOST }},DB_USER=${{ secrets.DB_USER }},DB_PASS=${{ secrets.DB_PASS }},DB_NAME=${{ secrets.DB_NAME }},DB_PORT=${{ secrets.DB_PORT }},SECRET_KEY=${{ secrets.SECRET_KEY }},REMINDER_SECRET_TOKEN=${{ secrets.REMINDER_SECRET_TOKEN }}"
+          --update-env-vars LINE_CHANNEL_ACCESS_TOKEN="${{ secrets.LINE_CHANNEL_ACCESS_TOKEN }}" \
+          --update-env-vars LINE_CHANNEL_SECRET="${{ secrets.LINE_CHANNEL_SECRET }}" \
+          --update-env-vars YOUR_BOT_ID="${{ secrets.YOUR_BOT_ID }}" \
+          --update-env-vars LIFF_CHANNEL_ID="${{ secrets.LIFF_CHANNEL_ID }}" \
+          --update-env-vars LIFF_ID_CAMERA="${{ secrets.LIFF_ID_CAMERA }}" \
+          --update-env-vars LIFF_ID_EDIT="${{ secrets.LIFF_ID_EDIT }}" \
+          --update-env-vars LIFF_ID_PRESCRIPTION_REMINDER="${{ secrets.LIFF_ID_PRESCRIPTION_REMINDER }}" \
+          --update-env-vars LIFF_ID_MANUAL_REMINDER="${{ secrets.LIFF_ID_MANUAL_REMINDER }}" \
+          --update-env-vars LIFF_ID_HEALTH_FORM="${{ secrets.LIFF_ID_HEALTH_FORM }}" \
+          --update-env-vars LINE_LOGIN_CHANNEL_ID="${{ secrets.LINE_LOGIN_CHANNEL_ID }}" \
+          --update-env-vars LINE_LOGIN_CHANNEL_SECRET="${{ secrets.LINE_LOGIN_CHANNEL_SECRET }}" \
+          --update-env-vars GEMINI_API_KEY="${{ secrets.GEMINI_API_KEY }}" \
+          --update-env-vars GCS_BUCKET_NAME="${{ secrets.GCS_BUCKET_NAME }}" \
+          --update-env-vars GOOGLE_APPLICATION_CREDENTIALS="${{ secrets.GOOGLE_APPLICATION_CREDENTIALS }}" \
+          --update-env-vars DB_HOST="${{ secrets.DB_HOST }}" \
+          --update-env-vars DB_USER="${{ secrets.DB_USER }}" \
+          --update-env-vars DB_PASS="${{ secrets.DB_PASS }}" \
+          --update-env-vars DB_NAME="${{ secrets.DB_NAME }}" \
+          --update-env-vars DB_PORT="${{ secrets.DB_PORT }}" \
+          --update-env-vars SECRET_KEY="${{ secrets.SECRET_KEY }}" \
+          --update-env-vars REMINDER_SECRET_TOKEN="${{ secrets.REMINDER_SECRET_TOKEN }}"
         
     - name: Get service URL
       id: url
