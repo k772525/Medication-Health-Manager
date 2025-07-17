@@ -5,6 +5,9 @@ import requests
 from google.cloud import storage
 from time import time
 
+# === 版本標記：2025-07-18 修復版 - 完全移除 ACL 操作 ===
+print("🔧 [Kevin模型] 載入修復版本 - 已移除所有 ACL 操作")
+
 # --- 環境變數與設定 ---
 GCS_BUCKET_NAME = os.environ.get("GCS_BUCKET_NAME")
 GCS_PATH_PREFIX = 'predictions/kevin_model/'
