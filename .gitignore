@@ -173,7 +173,7 @@ tmp_*
 *.bak
 *.backup
 *.old
-*.md
+
 *.jpg
 
 # 日誌檔案
@@ -213,3 +213,9 @@ env.yaml
 *.otf
 *.woff
 *.woff2
+
+# md
+windows_commands.md
+FIX_GCP_PERMISSIONS.md
+DEPLOYMENT_GUIDE.md
+deploy_with_scheduler.md

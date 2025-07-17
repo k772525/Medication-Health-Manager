@@ -162,7 +162,8 @@ jobs:
         DB_PASS=${{ secrets.DB_PASS }},
         DB_NAME=${{ secrets.DB_NAME }},
         DB_PORT=${{ secrets.DB_PORT }},
-        SECRET_KEY=${{ secrets.SECRET_KEY }}
+        SECRET_KEY=${{ secrets.SECRET_KEY }},
+        REMINDER_SECRET_TOKEN=${{ secrets.REMINDER_SECRET_TOKEN }}
         EOF
         )"
         

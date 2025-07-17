@@ -14,12 +14,30 @@ def check_reminders_endpoint():
     """
     try:
         # 驗證請求來源（增加安全性）
+        # 允許來自 Google Cloud 內部服務的請求
+        client_ip = request.remote_addr
+        google_cloud_internal_ips = [
+            '169.254.169.126',  # Google Cloud 元數據服務
+            '169.254.169.254',  # Google Cloud 元數據服務
+            '127.0.0.1',        # 本地回環
+            'localhost'         # 本地主機
+        ]
+        
+        # 檢查是否來自 Google Cloud 內部或有正確的授權 token
         auth_header = request.headers.get('Authorization')
         expected_token = f"Bearer {os.environ.get('REMINDER_SECRET_TOKEN', 'default-secret')}"
         
-        if auth_header != expected_token:
-            current_app.logger.warning(f"未授權的提醒檢查請求: {request.remote_addr}")
+        is_internal_request = client_ip in google_cloud_internal_ips
+        is_authorized = auth_header == expected_token
+        
+        if not (is_internal_request or is_authorized):
+            current_app.logger.warning(f"未授權的提醒檢查請求: {client_ip}")
             return jsonify({'error': 'Unauthorized'}), 401
+        
+        if is_internal_request:
+            current_app.logger.info(f"接受來自 Google Cloud 內部的請求: {client_ip}")
+        else:
+            current_app.logger.info(f"接受已授權的外部請求: {client_ip}")
         
         # 執行提醒檢查邏輯
         from app.services.reminder_service import check_and_send_reminders
