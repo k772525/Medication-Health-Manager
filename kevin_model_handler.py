@@ -10,9 +10,28 @@ GCS_BUCKET_NAME = os.environ.get("GCS_BUCKET_NAME")
 GCS_PATH_PREFIX = 'predictions/kevin_model/'
 
 # 設定 Google Cloud 認證
+# 在 Cloud Run 環境中，認證會自動處理，不需要設定檔案路徑
+# 只有在本地開發時才需要設定 GOOGLE_APPLICATION_CREDENTIALS
 GOOGLE_APPLICATION_CREDENTIALS = os.environ.get("GOOGLE_APPLICATION_CREDENTIALS")
-if GOOGLE_APPLICATION_CREDENTIALS:
+if GOOGLE_APPLICATION_CREDENTIALS and not GOOGLE_APPLICATION_CREDENTIALS.startswith('{'):
+    # 如果是檔案路徑（本地開發）
     os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = GOOGLE_APPLICATION_CREDENTIALS
+elif GOOGLE_APPLICATION_CREDENTIALS and GOOGLE_APPLICATION_CREDENTIALS.startswith('{'):
+    # 如果是 JSON 字串（Cloud Run 環境），寫入臨時檔案
+    import tempfile
+    import json
+    try:
+        # 驗證是否為有效的 JSON
+        json.loads(GOOGLE_APPLICATION_CREDENTIALS)
+        # 創建臨時檔案
+        with tempfile.NamedTemporaryFile(mode='w', suffix='.json', delete=False) as f:
+            f.write(GOOGLE_APPLICATION_CREDENTIALS)
+            temp_cred_path = f.name
+        os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = temp_cred_path
+        print(f"    - [Kevin模型] 已設定臨時認證檔案: {temp_cred_path}")
+    except json.JSONDecodeError:
+        print("    - [Kevin模型] 警告：GOOGLE_APPLICATION_CREDENTIALS 不是有效的 JSON")
+# 在 Cloud Run 中，如果沒有設定 GOOGLE_APPLICATION_CREDENTIALS，會使用預設的服務帳戶
 # 這是 kevin_api.py 中定義的 API 端點
 KEVIN_API_URL = "https://detect-api-self.wenalyzer.xyz/detect"
 
@@ -37,7 +56,17 @@ def _upload_to_gcs(image_bytes, suffix='annotated.jpg'):
             image_bytes = image_bytes.encode('utf-8')
         
         # 初始化 Storage Client
-        storage_client = storage.Client()
+        print(f"    - [Kevin模型] 初始化 Google Cloud Storage Client...")
+        try:
+            # 在 Cloud Run 環境中，會自動使用服務帳戶認證
+            storage_client = storage.Client()
+            print(f"    - [Kevin模型] Storage Client 初始化成功")
+        except Exception as client_error:
+            print(f"    - [Kevin模型] Storage Client 初始化失敗: {client_error}")
+            if "DefaultCredentialsError" in str(client_error):
+                print("    - [Kevin模型] 診斷：認證設定問題")
+                print("    - [Kevin模型] 建議：檢查 Cloud Run 服務帳戶設定")
+            raise client_error
         
         # 檢查 bucket 是否存在
         try:
