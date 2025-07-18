@@ -89,12 +89,14 @@ def handle_message_dispatcher(event):
         ),
         "設定": lambda: handle_settings_menu(event),
         
-        # 舊版本兼容性
+        # 主選單實際發送的文字
         "用藥提醒管理": lambda: reminder_handler.handle(event),
-        "家人綁定與管理": lambda: family_handler.handle(event),
+        "家人綁定與管理": lambda: family_handler.handle(event) if family_handler else line_bot_api.reply_message(event.reply_token, TextSendMessage(text="家人綁定功能暫時無法使用，請稍後再試。")),
         "藥丸辨識": lambda: handle_pill_recognition(event),
-        "此功能正在開發中，敬請期待！": lambda: handle_pill_recognition(event),
         "健康記錄管理": lambda: handle_health_record_menu(event),
+        
+        # 其他兼容性
+        "此功能正在開發中，敬請期待！": lambda: handle_pill_recognition(event),
         
         # 其他功能
         "登入": lambda: handle_login_request(event),
