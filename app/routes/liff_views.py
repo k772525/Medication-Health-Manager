@@ -286,9 +286,13 @@ def create_reminders_from_prescription_api():
                     liff_id = current_app.config['LIFF_ID_MANUAL_REMINDER']
                     flex_message = flex_reminder.create_reminder_list_carousel(member_info, member_reminders, liff_id)
                     
-                    # 發送 Push Message
-                    line_bot_api.push_message(user_id, flex_message)
-                    current_app.logger.info(f"已向用戶 {user_id} 發送 {member_info['member']} 的處方提醒列表")
+                    # 檢查是否啟用 Push Messages
+                    if current_app.config.get('ENABLE_PUSH_MESSAGES', True):
+                        # 發送 Push Message
+                        line_bot_api.push_message(user_id, flex_message)
+                        current_app.logger.info(f"已向用戶 {user_id} 發送 {member_info['member']} 的處方提醒列表")
+                    else:
+                        current_app.logger.info(f"Push Messages 已禁用，跳過發送 {member_info['member']} 的處方提醒列表")
         except Exception as e:
             current_app.logger.error(f"發送處方提醒列表 Flex Message 失敗: {e}")
             # 不影響主要功能，繼續返回成功
@@ -324,9 +328,13 @@ def create_manual_reminder_api():
                 liff_id = current_app.config['LIFF_ID_MANUAL_REMINDER']
                 flex_message = flex_reminder.create_reminder_list_carousel(member_info, reminders, liff_id)
                 
-                # 發送 Push Message
-                line_bot_api.push_message(user_id, flex_message)
-                current_app.logger.info(f"已向用戶 {user_id} 發送 {member_info['member']} 的新增提醒列表")
+                # 檢查是否啟用 Push Messages
+                if current_app.config.get('ENABLE_PUSH_MESSAGES', True):
+                    # 發送 Push Message
+                    line_bot_api.push_message(user_id, flex_message)
+                    current_app.logger.info(f"已向用戶 {user_id} 發送 {member_info['member']} 的新增提醒列表")
+                else:
+                    current_app.logger.info(f"Push Messages 已禁用，跳過發送 {member_info['member']} 的新增提醒列表")
         except Exception as e:
             current_app.logger.error(f"發送新增提醒列表 Flex Message 失敗: {e}")
             # 不影響主要功能，繼續返回成功
@@ -392,9 +400,13 @@ def manual_reminder_api(reminder_id):
                             liff_id = current_app.config['LIFF_ID_MANUAL_REMINDER']
                             flex_message = flex_reminder.create_reminder_list_carousel(member_info, reminders, liff_id)
                             
-                            # 發送 Push Message
-                            line_bot_api.push_message(user_id, flex_message)
-                            current_app.logger.info(f"已向用戶 {user_id} 發送 {member_name} 的更新提醒列表")
+                            # 檢查是否啟用 Push Messages
+                            if current_app.config.get('ENABLE_PUSH_MESSAGES', True):
+                                # 發送 Push Message
+                                line_bot_api.push_message(user_id, flex_message)
+                                current_app.logger.info(f"已向用戶 {user_id} 發送 {member_name} 的更新提醒列表")
+                            else:
+                                current_app.logger.info(f"Push Messages 已禁用，跳過發送 {member_name} 的更新提醒列表")
                         else:
                             current_app.logger.warning(f"找不到成員資訊: {member_name}")
                     else:

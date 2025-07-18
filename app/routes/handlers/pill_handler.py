@@ -34,11 +34,11 @@ user_states = {}
 # 可用模型配置
 AVAILABLE_MODELS = {
     "1": {
-        "name": "yolov12",
+        "name": "高精度",
         "url": "https://pill-detection-api-712800774423.us-central1.run.app"
     },
     "2": {
-        "name": "yolov11", 
+        "name": "高效率", 
         "url": "https://fastapiv11-712800774423.us-central1.run.app"
     }
 }

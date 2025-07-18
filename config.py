@@ -52,6 +52,10 @@ class Config:
     DB_PASSWORD = os.environ.get('DB_PASS')
     DB_NAME = os.environ.get('DB_NAME')
     DB_PORT = int(os.environ.get('DB_PORT', 3306))
+    
+    # --- LINE Bot 功能開關 ---
+    # 當達到月度限制時，可以設定為 False 來禁用 Push Messages
+    ENABLE_PUSH_MESSAGES = os.environ.get('ENABLE_PUSH_MESSAGES', 'true').lower() == 'true'
 
     @staticmethod
     def validate_config():
