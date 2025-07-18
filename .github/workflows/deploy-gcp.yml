@@ -155,7 +155,7 @@ jobs:
         echo "DB_PORT: \"${{ secrets.DB_PORT }}\"" >> env_vars.yaml
         echo "SECRET_KEY: \"${{ secrets.SECRET_KEY }}\"" >> env_vars.yaml
         echo "REMINDER_SECRET_TOKEN: \"${{ secrets.REMINDER_SECRET_TOKEN }}\"" >> env_vars.yaml
-        echo "ENABLE_PUSH_MESSAGES: \"false\"" >> env_vars.yaml
+        echo "ENABLE_PUSH_MESSAGES: \"true\"" >> env_vars.yaml
         
         echo "Generated env_vars.yaml content:"
         cat env_vars.yaml
