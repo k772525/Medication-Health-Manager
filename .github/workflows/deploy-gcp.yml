@@ -131,30 +131,28 @@ jobs:
           echo "🆕 Service $SERVICE_NAME does not exist, creating new service..."
         fi
         
-        # 創建環境變數文件以避免命令行長度限制和特殊字符問題
-        cat > env_vars.yaml << EOF
-LINE_CHANNEL_ACCESS_TOKEN: "${{ secrets.LINE_CHANNEL_ACCESS_TOKEN }}"
-LINE_CHANNEL_SECRET: "${{ secrets.LINE_CHANNEL_SECRET }}"
-YOUR_BOT_ID: "${{ secrets.YOUR_BOT_ID }}"
-LIFF_CHANNEL_ID: "${{ secrets.LIFF_CHANNEL_ID }}"
-LIFF_ID_CAMERA: "${{ secrets.LIFF_ID_CAMERA }}"
-LIFF_ID_EDIT: "${{ secrets.LIFF_ID_EDIT }}"
-LIFF_ID_PRESCRIPTION_REMINDER: "${{ secrets.LIFF_ID_PRESCRIPTION_REMINDER }}"
-LIFF_ID_MANUAL_REMINDER: "${{ secrets.LIFF_ID_MANUAL_REMINDER }}"
-LIFF_ID_HEALTH_FORM: "${{ secrets.LIFF_ID_HEALTH_FORM }}"
-LINE_LOGIN_CHANNEL_ID: "${{ secrets.LINE_LOGIN_CHANNEL_ID }}"
-LINE_LOGIN_CHANNEL_SECRET: "${{ secrets.LINE_LOGIN_CHANNEL_SECRET }}"
-GEMINI_API_KEY: "${{ secrets.GEMINI_API_KEY }}"
-GCS_BUCKET_NAME: "${{ secrets.GCS_BUCKET_NAME }}"
-GOOGLE_APPLICATION_CREDENTIALS: "${{ secrets.GOOGLE_APPLICATION_CREDENTIALS }}"
-DB_HOST: "${{ secrets.DB_HOST }}"
-DB_USER: "${{ secrets.DB_USER }}"
-DB_PASS: "${{ secrets.DB_PASS }}"
-DB_NAME: "${{ secrets.DB_NAME }}"
-DB_PORT: "${{ secrets.DB_PORT }}"
-SECRET_KEY: "${{ secrets.SECRET_KEY }}"
-REMINDER_SECRET_TOKEN: "${{ secrets.REMINDER_SECRET_TOKEN }}"
-EOF
+        # 使用逐行寫入方式創建環境變數文件
+        echo "LINE_CHANNEL_ACCESS_TOKEN: \"${{ secrets.LINE_CHANNEL_ACCESS_TOKEN }}\"" > env_vars.yaml
+        echo "LINE_CHANNEL_SECRET: \"${{ secrets.LINE_CHANNEL_SECRET }}\"" >> env_vars.yaml
+        echo "YOUR_BOT_ID: \"${{ secrets.YOUR_BOT_ID }}\"" >> env_vars.yaml
+        echo "LIFF_CHANNEL_ID: \"${{ secrets.LIFF_CHANNEL_ID }}\"" >> env_vars.yaml
+        echo "LIFF_ID_CAMERA: \"${{ secrets.LIFF_ID_CAMERA }}\"" >> env_vars.yaml
+        echo "LIFF_ID_EDIT: \"${{ secrets.LIFF_ID_EDIT }}\"" >> env_vars.yaml
+        echo "LIFF_ID_PRESCRIPTION_REMINDER: \"${{ secrets.LIFF_ID_PRESCRIPTION_REMINDER }}\"" >> env_vars.yaml
+        echo "LIFF_ID_MANUAL_REMINDER: \"${{ secrets.LIFF_ID_MANUAL_REMINDER }}\"" >> env_vars.yaml
+        echo "LIFF_ID_HEALTH_FORM: \"${{ secrets.LIFF_ID_HEALTH_FORM }}\"" >> env_vars.yaml
+        echo "LINE_LOGIN_CHANNEL_ID: \"${{ secrets.LINE_LOGIN_CHANNEL_ID }}\"" >> env_vars.yaml
+        echo "LINE_LOGIN_CHANNEL_SECRET: \"${{ secrets.LINE_LOGIN_CHANNEL_SECRET }}\"" >> env_vars.yaml
+        echo "GEMINI_API_KEY: \"${{ secrets.GEMINI_API_KEY }}\"" >> env_vars.yaml
+        echo "GCS_BUCKET_NAME: \"${{ secrets.GCS_BUCKET_NAME }}\"" >> env_vars.yaml
+        echo "GOOGLE_APPLICATION_CREDENTIALS: \"${{ secrets.GOOGLE_APPLICATION_CREDENTIALS }}\"" >> env_vars.yaml
+        echo "DB_HOST: \"${{ secrets.DB_HOST }}\"" >> env_vars.yaml
+        echo "DB_USER: \"${{ secrets.DB_USER }}\"" >> env_vars.yaml
+        echo "DB_PASS: \"${{ secrets.DB_PASS }}\"" >> env_vars.yaml
+        echo "DB_NAME: \"${{ secrets.DB_NAME }}\"" >> env_vars.yaml
+        echo "DB_PORT: \"${{ secrets.DB_PORT }}\"" >> env_vars.yaml
+        echo "SECRET_KEY: \"${{ secrets.SECRET_KEY }}\"" >> env_vars.yaml
+        echo "REMINDER_SECRET_TOKEN: \"${{ secrets.REMINDER_SECRET_TOKEN }}\"" >> env_vars.yaml
         
         echo "Generated env_vars.yaml content:"
         cat env_vars.yaml
