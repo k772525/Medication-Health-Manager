@@ -544,15 +544,24 @@
                     <h2 id="historyTitle" class="text-2xl font-bold mb-6 text-gray-800 flex items-center gap-2">
                         <span class="animated-emoji">📈</span> 歷史紀錄 <span class="pulse-emoji">📊</span>
                     </h2>
+
+                    <!-- 統計資訊卡片 -->
+                    <div id="statsContainer" class="mb-6"></div>
+
                     <div class="chart-wrapper-medium">
                         <canvas id="historyChart" class="chart-canvas-medium"></canvas>
                     </div>
 
-                    <!-- 按鈕區域 - 添加新紀錄和返回按鈕並排 -->
-                    <div class="flex gap-4 mt-6 mb-6">
+                    <!-- 按鈕區域 - 添加新紀錄、導出數據和返回按鈕 -->
+                    <div class="flex gap-3 mt-6 mb-6">
                         <button id="addRecordBtn"
                             class="primary-button flex-1 py-4 px-6 rounded-xl font-bold text-lg shadow-xl transition-all duration-300 flex items-center justify-center gap-2">
                             <span class="text-xl">+</span> 添加新紀錄
+                        </button>
+                        <button id="exportDataBtn"
+                            class="glass-button px-4 py-4 rounded-xl font-medium text-gray-700 hover:text-gray-900 transition-all duration-300 flex items-center gap-2"
+                            title="導出數據">
+                            <span>📊</span> 導出
                         </button>
                         <button id="backToDashboardBtn"
                             class="glass-button px-6 py-4 rounded-xl font-medium text-gray-700 hover:text-gray-900 transition-all duration-300 flex items-center gap-2">
@@ -1049,8 +1058,167 @@
 
             const personLogs = allLogs.filter(log => log.recorder_id === userProfile.userId && log.target_person === targetPerson);
 
-            renderHistoryChart(personLogs, type);
-            renderHistoryTable(personLogs, type);
+            renderStatsCards(personLogs, type);
+            renderHistoryChart(personLogs, type, true); // 使用分頁顯示資料
+            renderHistoryTable(personLogs, type, true); // 使用分頁顯示資料
+        }
+
+        function renderStatsCards(logs, type) {
+            const container = document.getElementById('statsContainer');
+            const filteredLogs = logs.filter(log => type.fields.every(f => log[f] != null));
+
+            if (filteredLogs.length === 0) {
+                container.innerHTML = '';
+                return;
+            }
+
+            let stats = {};
+
+            if (type.key === 'blood_pressure') {
+                const systolicValues = filteredLogs.map(log => log.systolic_pressure);
+                const diastolicValues = filteredLogs.map(log => log.diastolic_pressure);
+
+                stats = {
+                    count: filteredLogs.length,
+                    systolic: {
+                        avg: (systolicValues.reduce((a, b) => a + b, 0) / systolicValues.length).toFixed(1),
+                        max: Math.max(...systolicValues),
+                        min: Math.min(...systolicValues)
+                    },
+                    diastolic: {
+                        avg: (diastolicValues.reduce((a, b) => a + b, 0) / diastolicValues.length).toFixed(1),
+                        max: Math.max(...diastolicValues),
+                        min: Math.min(...diastolicValues)
+                    }
+                };
+            } else {
+                const values = filteredLogs.map(log => log[type.key]);
+                stats = {
+                    count: filteredLogs.length,
+                    avg: (values.reduce((a, b) => a + b, 0) / values.length).toFixed(1),
+                    max: Math.max(...values),
+                    min: Math.min(...values),
+                    latest: values[0] // 因為已經按時間排序
+                };
+            }
+
+            // 計算趨勢
+            const trend = calculateTrend(filteredLogs, type);
+            const healthAdvice = getHealthAdvice(type, stats, trend);
+
+            container.innerHTML = `
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
+                    ${type.key === 'blood_pressure' ? `
+                        <div class="bg-gradient-to-br from-red-50 to-red-100 p-4 rounded-xl border border-red-200">
+                            <div class="text-red-600 font-bold text-sm mb-1">收縮壓平均</div>
+                            <div class="text-2xl font-bold text-red-700">${stats.systolic.avg}</div>
+                            <div class="text-xs text-red-500">範圍: ${stats.systolic.min}-${stats.systolic.max}</div>
+                        </div>
+                        <div class="bg-gradient-to-br from-blue-50 to-blue-100 p-4 rounded-xl border border-blue-200">
+                            <div class="text-blue-600 font-bold text-sm mb-1">舒張壓平均</div>
+                            <div class="text-2xl font-bold text-blue-700">${stats.diastolic.avg}</div>
+                            <div class="text-xs text-blue-500">範圍: ${stats.diastolic.min}-${stats.diastolic.max}</div>
+                        </div>
+                    ` : `
+                        <div class="bg-gradient-to-br from-purple-50 to-purple-100 p-4 rounded-xl border border-purple-200">
+                            <div class="text-purple-600 font-bold text-sm mb-1">平均值</div>
+                            <div class="text-2xl font-bold text-purple-700">${stats.avg} ${type.unit}</div>
+                            <div class="text-xs text-purple-500">範圍: ${stats.min}-${stats.max}</div>
+                        </div>
+                        <div class="bg-gradient-to-br from-green-50 to-green-100 p-4 rounded-xl border border-green-200">
+                            <div class="text-green-600 font-bold text-sm mb-1">最新記錄</div>
+                            <div class="text-2xl font-bold text-green-700">${stats.latest} ${type.unit}</div>
+                            <div class="text-xs text-green-500">${new Date(filteredLogs[0].record_time).toLocaleDateString('zh-TW')}</div>
+                        </div>
+                    `}
+                    <div class="bg-gradient-to-br from-yellow-50 to-yellow-100 p-4 rounded-xl border border-yellow-200">
+                        <div class="text-yellow-600 font-bold text-sm mb-1">記錄總數</div>
+                        <div class="text-2xl font-bold text-yellow-700">${stats.count}</div>
+                        <div class="text-xs text-yellow-500">筆記錄</div>
+                    </div>
+                    <div class="bg-gradient-to-br from-indigo-50 to-indigo-100 p-4 rounded-xl border border-indigo-200">
+                        <div class="text-indigo-600 font-bold text-sm mb-1">趨勢</div>
+                        <div class="text-2xl font-bold text-indigo-700">${trend.icon}</div>
+                        <div class="text-xs text-indigo-500">${trend.text}</div>
+                    </div>
+                </div>
+                ${healthAdvice ? `
+                    <div class="bg-gradient-to-r from-cyan-50 to-blue-50 border border-cyan-200 rounded-xl p-4 mb-4">
+                        <div class="flex items-start gap-3">
+                            <div class="text-2xl">💡</div>
+                            <div>
+                                <div class="font-bold text-cyan-800 mb-1">健康建議</div>
+                                <div class="text-sm text-cyan-700">${healthAdvice}</div>
+                            </div>
+                        </div>
+                    </div>
+                ` : ''}
+            `;
+        }
+
+        function calculateTrend(logs, type) {
+            if (logs.length < 2) return { icon: '➖', text: '資料不足' };
+
+            const recent = logs.slice(0, Math.min(5, logs.length));
+            const older = logs.slice(Math.min(5, logs.length), Math.min(10, logs.length));
+
+            if (older.length === 0) return { icon: '➖', text: '資料不足' };
+
+            let recentAvg, olderAvg;
+
+            if (type.key === 'blood_pressure') {
+                recentAvg = recent.reduce((sum, log) => sum + log.systolic_pressure, 0) / recent.length;
+                olderAvg = older.reduce((sum, log) => sum + log.systolic_pressure, 0) / older.length;
+            } else {
+                recentAvg = recent.reduce((sum, log) => sum + log[type.key], 0) / recent.length;
+                olderAvg = older.reduce((sum, log) => sum + log[type.key], 0) / older.length;
+            }
+
+            const diff = recentAvg - olderAvg;
+            const threshold = type.key === 'weight' ? 0.5 : type.key === 'blood_pressure' ? 5 : 1;
+
+            if (Math.abs(diff) < threshold) {
+                return { icon: '➖', text: '穩定' };
+            } else if (diff > 0) {
+                return { icon: '📈', text: '上升' };
+            } else {
+                return { icon: '📉', text: '下降' };
+            }
+        }
+
+        function getHealthAdvice(type, stats, trend) {
+            switch (type.key) {
+                case 'blood_pressure':
+                    if (stats.systolic.avg > 140 || stats.diastolic.avg > 90) {
+                        return '血壓偏高，建議諮詢醫師並注意飲食清淡、適度運動。';
+                    } else if (stats.systolic.avg < 90 || stats.diastolic.avg < 60) {
+                        return '血壓偏低，建議適度補充水分和鹽分，如有不適請就醫。';
+                    }
+                    break;
+                case 'weight':
+                    if (trend.text === '上升') {
+                        return '體重呈上升趨勢，建議控制飲食並增加運動量。';
+                    } else if (trend.text === '下降') {
+                        return '體重呈下降趨勢，請確保營養均衡，必要時諮詢營養師。';
+                    }
+                    break;
+                case 'blood_sugar':
+                    if (stats.avg > 126) {
+                        return '血糖偏高，建議控制糖分攝取並定期監測，請諮詢醫師。';
+                    }
+                    break;
+                case 'temperature':
+                    if (stats.avg > 37.5) {
+                        return '體溫偏高，請注意休息並多補充水分，持續發燒請就醫。';
+                    }
+                    break;
+                case 'blood_oxygen':
+                    if (stats.avg < 95) {
+                        return '血氧偏低，建議深呼吸練習，如持續偏低請立即就醫。';
+                    }
+                    break;
+            }
+            return null;
         }
 
         function renderHistoryChart(logs, type, useCurrentPage = false) {
@@ -1060,10 +1228,12 @@
             let filteredLogs = logs.filter(log => type.fields.every(f => log[f] != null)).reverse(); // 反轉以獲得時間順序
 
             // 如果需要使用當前分頁數據，則只顯示當前頁的數據
-            if (useCurrentPage && allHistoryLogs.length > 0) {
+            if (useCurrentPage) {
+                // 使用當前的 filteredLogs 進行分頁，而不依賴 allHistoryLogs
+                allHistoryLogs = filteredLogs; // 保存完整的日誌以供分頁使用
                 const startIndex = (currentPage - 1) * recordsPerPage;
                 const endIndex = startIndex + recordsPerPage;
-                filteredLogs = allHistoryLogs.slice(startIndex, endIndex);
+                filteredLogs = filteredLogs.slice(startIndex, endIndex);
             }
 
             const labels = filteredLogs.map(log => new Date(log.record_time).toLocaleDateString('zh-TW', { month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' }));
@@ -1245,7 +1415,7 @@
             });
         }
 
-        function renderHistoryTable(logs, type) {
+        function renderHistoryTable(logs, type, useCurrentPage = false) {
             const container = document.getElementById('historyTableContainer');
             container.innerHTML = '';
 
@@ -1684,6 +1854,50 @@
             if (currentViewingType) openModal(currentViewingType);
         });
 
+        // 數據導出功能
+        document.getElementById('exportDataBtn').addEventListener('click', () => {
+            if (currentViewingType && allHistoryLogs.length > 0) {
+                exportHealthData(currentViewingType, allHistoryLogs);
+            } else {
+                showAlert('導出提醒', '目前沒有可導出的數據');
+            }
+        });
+
+        function exportHealthData(type, logs) {
+            const targetPerson = getSelectedPerson();
+            const filename = `${targetPerson}_${type.name}_健康記錄_${new Date().toISOString().split('T')[0]}.csv`;
+
+            let csvContent = '\uFEFF'; // BOM for UTF-8
+
+            // CSV 標題
+            if (type.key === 'blood_pressure') {
+                csvContent += '日期時間,收縮壓(mmHg),舒張壓(mmHg)\n';
+                logs.forEach(log => {
+                    const dateTime = new Date(log.record_time).toLocaleString('zh-TW');
+                    csvContent += `${dateTime},${log.systolic_pressure},${log.diastolic_pressure}\n`;
+                });
+            } else {
+                csvContent += `日期時間,${type.name}(${type.unit})\n`;
+                logs.forEach(log => {
+                    const dateTime = new Date(log.record_time).toLocaleString('zh-TW');
+                    csvContent += `${dateTime},${log[type.key]}\n`;
+                });
+            }
+
+            // 創建下載連結
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            const url = URL.createObjectURL(blob);
+            link.setAttribute('href', url);
+            link.setAttribute('download', filename);
+            link.style.visibility = 'hidden';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+
+            showAlert('導出成功', `已導出 ${logs.length} 筆${type.name}記錄`);
+        }
+
         saveRecordBtn.addEventListener('click', async () => {
             const messageDiv = document.getElementById("modalMessage");
             if (!userProfile) {
@@ -1755,23 +1969,79 @@
 
             saveRecordBtn.disabled = true;
             messageDiv.innerHTML = `<span class="text-blue-500">💾 正在儲存...</span>`;
+
             try {
-                const response = await fetch("/api/health_log", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(data) });
+                if (!isOnline) {
+                    // 離線模式：儲存到本地
+                    const success = saveRecordOffline(data);
+                    if (success) {
+                        messageDiv.innerHTML = `<span class="text-yellow-500">📱 已離線儲存，將在連線時同步</span>`;
+                        setTimeout(() => {
+                            closeModal();
+                            if (currentViewingType) showHistory(currentViewingType);
+                        }, 1500);
+                    } else {
+                        throw new Error('離線儲存失敗');
+                    }
+                    return;
+                }
+
+                // 線上模式：直接儲存到伺服器
+                const controller = new AbortController();
+                const timeoutId = setTimeout(() => controller.abort(), 15000); // 15秒超時
+
+                const response = await fetch("/api/health_log", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(data),
+                    signal: controller.signal
+                });
+
+                clearTimeout(timeoutId);
+
                 if (!response.ok) {
                     const errData = await response.json();
                     throw new Error(errData.error || '儲存失敗');
                 }
 
                 messageDiv.innerHTML = `<span class="text-green-500">✅ 紀錄成功！</span>`;
-                await loadAllHealthData(userProfile.userId);
+                await loadAllHealthData(userProfile.userId, true); // 強制重新載入
 
                 setTimeout(() => {
                     closeModal();
-                    showHistory(currentViewingType);
+                    if (currentViewingType) showHistory(currentViewingType);
                 }, 1000);
 
             } catch (error) {
-                messageDiv.innerHTML = `<span class="text-red-500">❌ 儲存失敗: ${error.message}</span>`;
+                console.error('儲存記錄失敗:', error);
+
+                if (error.name === 'AbortError') {
+                    // 超時錯誤，嘗試離線儲存
+                    const success = saveRecordOffline(data);
+                    if (success) {
+                        messageDiv.innerHTML = `<span class="text-yellow-500">⏱️ 網路超時，已離線儲存</span>`;
+                        setTimeout(() => {
+                            closeModal();
+                            if (currentViewingType) showHistory(currentViewingType);
+                        }, 1500);
+                    } else {
+                        messageDiv.innerHTML = `<span class="text-red-500">❌ 儲存超時且離線儲存失敗</span>`;
+                    }
+                } else if (!isOnline) {
+                    // 網路斷線，嘗試離線儲存
+                    const success = saveRecordOffline(data);
+                    if (success) {
+                        messageDiv.innerHTML = `<span class="text-yellow-500">📱 網路斷線，已離線儲存</span>`;
+                        setTimeout(() => {
+                            closeModal();
+                            if (currentViewingType) showHistory(currentViewingType);
+                        }, 1500);
+                    } else {
+                        messageDiv.innerHTML = `<span class="text-red-500">❌ 網路斷線且離線儲存失敗</span>`;
+                    }
+                } else {
+                    messageDiv.innerHTML = `<span class="text-red-500">❌ 儲存失敗: ${error.message}</span>`;
+                }
             } finally {
                 saveRecordBtn.disabled = false;
             }
@@ -1800,8 +2070,8 @@
         function showNetworkStatus(message, type) {
             const statusDiv = document.createElement('div');
             statusDiv.className = `fixed top-4 right-4 z-50 px-4 py-2 rounded-lg shadow-lg transition-all duration-300 ${type === 'success' ? 'bg-green-500 text-white' :
-                    type === 'warning' ? 'bg-yellow-500 text-white' :
-                        'bg-red-500 text-white'
+                type === 'warning' ? 'bg-yellow-500 text-white' :
+                    'bg-red-500 text-white'
                 }`;
             statusDiv.textContent = message;
             document.body.appendChild(statusDiv);
