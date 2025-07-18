@@ -145,7 +145,8 @@ jobs:
         echo "LINE_LOGIN_CHANNEL_SECRET: \"${{ secrets.LINE_LOGIN_CHANNEL_SECRET }}\"" >> env_vars.yaml
         echo "GEMINI_API_KEY: \"${{ secrets.GEMINI_API_KEY }}\"" >> env_vars.yaml
         echo "GCS_BUCKET_NAME: \"${{ secrets.GCS_BUCKET_NAME }}\"" >> env_vars.yaml
-        echo "GCP_CREDENTIALS_JSON: \"${{ secrets.GOOGLE_APPLICATION_CREDENTIALS }}\"" >> env_vars.yaml
+        # 使用 base64 編碼來安全傳遞 GCP 憑證
+        echo "GCP_CREDENTIALS_BASE64: \"$(echo '${{ secrets.GOOGLE_APPLICATION_CREDENTIALS }}' | base64 -w 0)\"" >> env_vars.yaml
         echo "GOOGLE_APPLICATION_CREDENTIALS: \"/app/gcp-credentials.json\"" >> env_vars.yaml
         echo "DB_HOST: \"${{ secrets.DB_HOST }}\"" >> env_vars.yaml
         echo "DB_USER: \"${{ secrets.DB_USER }}\"" >> env_vars.yaml
