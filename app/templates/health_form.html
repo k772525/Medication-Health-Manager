@@ -533,8 +533,8 @@
                                 <span class="animated-emoji">📋</span> 顯示
                             </span>
                             <select id="recordsPerPage" class="records-select">
-                                <option value="5">5</option>
-                                <option value="10" selected>10</option>
+                                <option value="5" selected>5</option>
+                                <option value="10">10</option>
                                 <option value="15">15</option>
                             </select>
                             <span class="text-sm font-semibold text-gray-700">筆記錄</span>
@@ -629,7 +629,7 @@
         let currentHistoryChart = null;
         let currentViewingType = null;
         let currentPage = 1;
-        let recordsPerPage = 10;
+        let recordsPerPage = 5;
         let totalRecords = 0;
         let allHistoryLogs = [];
         const measurementTypes = [
