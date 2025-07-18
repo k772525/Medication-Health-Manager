@@ -132,29 +132,32 @@ jobs:
         fi
         
         # 創建環境變數文件以避免命令行長度限制和特殊字符問題
-        cat > env_vars.yaml << EOF
-        LINE_CHANNEL_ACCESS_TOKEN: "${{ secrets.LINE_CHANNEL_ACCESS_TOKEN }}"
-        LINE_CHANNEL_SECRET: "${{ secrets.LINE_CHANNEL_SECRET }}"
-        YOUR_BOT_ID: "${{ secrets.YOUR_BOT_ID }}"
-        LIFF_CHANNEL_ID: "${{ secrets.LIFF_CHANNEL_ID }}"
-        LIFF_ID_CAMERA: "${{ secrets.LIFF_ID_CAMERA }}"
-        LIFF_ID_EDIT: "${{ secrets.LIFF_ID_EDIT }}"
-        LIFF_ID_PRESCRIPTION_REMINDER: "${{ secrets.LIFF_ID_PRESCRIPTION_REMINDER }}"
-        LIFF_ID_MANUAL_REMINDER: "${{ secrets.LIFF_ID_MANUAL_REMINDER }}"
-        LIFF_ID_HEALTH_FORM: "${{ secrets.LIFF_ID_HEALTH_FORM }}"
-        LINE_LOGIN_CHANNEL_ID: "${{ secrets.LINE_LOGIN_CHANNEL_ID }}"
-        LINE_LOGIN_CHANNEL_SECRET: "${{ secrets.LINE_LOGIN_CHANNEL_SECRET }}"
-        GEMINI_API_KEY: "${{ secrets.GEMINI_API_KEY }}"
-        GCS_BUCKET_NAME: "${{ secrets.GCS_BUCKET_NAME }}"
-        GOOGLE_APPLICATION_CREDENTIALS: "${{ secrets.GOOGLE_APPLICATION_CREDENTIALS }}"
-        DB_HOST: "${{ secrets.DB_HOST }}"
-        DB_USER: "${{ secrets.DB_USER }}"
-        DB_PASS: "${{ secrets.DB_PASS }}"
-        DB_NAME: "${{ secrets.DB_NAME }}"
-        DB_PORT: "${{ secrets.DB_PORT }}"
-        SECRET_KEY: "${{ secrets.SECRET_KEY }}"
-        REMINDER_SECRET_TOKEN: "${{ secrets.REMINDER_SECRET_TOKEN }}"
-        EOF
+        cat > env_vars.yaml << 'EOF'
+LINE_CHANNEL_ACCESS_TOKEN: "${{ secrets.LINE_CHANNEL_ACCESS_TOKEN }}"
+LINE_CHANNEL_SECRET: "${{ secrets.LINE_CHANNEL_SECRET }}"
+YOUR_BOT_ID: "${{ secrets.YOUR_BOT_ID }}"
+LIFF_CHANNEL_ID: "${{ secrets.LIFF_CHANNEL_ID }}"
+LIFF_ID_CAMERA: "${{ secrets.LIFF_ID_CAMERA }}"
+LIFF_ID_EDIT: "${{ secrets.LIFF_ID_EDIT }}"
+LIFF_ID_PRESCRIPTION_REMINDER: "${{ secrets.LIFF_ID_PRESCRIPTION_REMINDER }}"
+LIFF_ID_MANUAL_REMINDER: "${{ secrets.LIFF_ID_MANUAL_REMINDER }}"
+LIFF_ID_HEALTH_FORM: "${{ secrets.LIFF_ID_HEALTH_FORM }}"
+LINE_LOGIN_CHANNEL_ID: "${{ secrets.LINE_LOGIN_CHANNEL_ID }}"
+LINE_LOGIN_CHANNEL_SECRET: "${{ secrets.LINE_LOGIN_CHANNEL_SECRET }}"
+GEMINI_API_KEY: "${{ secrets.GEMINI_API_KEY }}"
+GCS_BUCKET_NAME: "${{ secrets.GCS_BUCKET_NAME }}"
+GOOGLE_APPLICATION_CREDENTIALS: "${{ secrets.GOOGLE_APPLICATION_CREDENTIALS }}"
+DB_HOST: "${{ secrets.DB_HOST }}"
+DB_USER: "${{ secrets.DB_USER }}"
+DB_PASS: "${{ secrets.DB_PASS }}"
+DB_NAME: "${{ secrets.DB_NAME }}"
+DB_PORT: "${{ secrets.DB_PORT }}"
+SECRET_KEY: "${{ secrets.SECRET_KEY }}"
+REMINDER_SECRET_TOKEN: "${{ secrets.REMINDER_SECRET_TOKEN }}"
+EOF
+        
+        echo "Generated env_vars.yaml content:"
+        cat env_vars.yaml
         
         gcloud run deploy $SERVICE_NAME \
           --image $REGION-docker.pkg.dev/$PROJECT_ID/$REPOSITORY_NAME/$IMAGE_NAME:$GITHUB_SHA \
