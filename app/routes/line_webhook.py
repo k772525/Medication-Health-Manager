@@ -71,6 +71,20 @@ def handle_message_dispatcher(event):
         return
         
     text = event.message.text.strip()
+    print(f"🔍 [DEBUG] 收到文字訊息: '{text}', 用戶: {user_id}")
+    current_app.logger.info(f"🔍 [DEBUG] 收到文字訊息: '{text}', 用戶: {user_id}")
+    
+    # 測試資料庫連接 - 使用簡單的用戶服務測試
+    try:
+        # 使用現有的 UserService 來測試資料庫連接
+        UserService.get_or_create_user(user_id)
+        print(f"✅ [DEBUG] 資料庫連接正常 (通過 UserService 測試)")
+    except Exception as db_error:
+        print(f"❌ [DEBUG] 資料庫連接失敗: {db_error}")
+        current_app.logger.error(f"❌ [DEBUG] 資料庫連接失敗: {db_error}")
+        # 直接回覆用戶資料庫問題
+        line_bot_api.reply_message(event.reply_token, TextSendMessage(text="系統暫時無法連接資料庫，請稍後再試。"))
+        return
 
     # 第一優先級：全局指令
     high_priority_keywords = {
@@ -79,7 +93,7 @@ def handle_message_dispatcher(event):
         "主選單": lambda: line_bot_api.reply_message(event.reply_token, flex_general.create_main_menu()),
         "menu": lambda: line_bot_api.reply_message(event.reply_token, flex_general.create_main_menu()),
         
-        # 圖文選單按鈕 - 新的簡化名稱
+        # 圖文選單按鈕 - 原始版本
         "藥單辨識": lambda: prescription_handler.handle(event),
         "藥品辨識": lambda: handle_pill_recognition(event),
         "用藥提醒": lambda: reminder_handler.handle(event),
@@ -89,14 +103,12 @@ def handle_message_dispatcher(event):
         ),
         "設定": lambda: handle_settings_menu(event),
         
-        # 主選單實際發送的文字
+        # 舊版本兼容性 - 恢復原始邏輯
         "用藥提醒管理": lambda: reminder_handler.handle(event),
         "家人綁定與管理": lambda: family_handler.handle(event) if family_handler else line_bot_api.reply_message(event.reply_token, TextSendMessage(text="家人綁定功能暫時無法使用，請稍後再試。")),
         "藥丸辨識": lambda: handle_pill_recognition(event),
-        "健康記錄管理": lambda: handle_health_record_menu(event),
-        
-        # 其他兼容性
         "此功能正在開發中，敬請期待！": lambda: handle_pill_recognition(event),
+        "健康記錄管理": lambda: handle_health_record_menu(event),
         
         # 其他功能
         "登入": lambda: handle_login_request(event),
@@ -111,9 +123,21 @@ def handle_message_dispatcher(event):
     }
 
     if text in high_priority_keywords:
-        UserService.delete_user_simple_state(user_id)
-        UserService.clear_user_complex_state(user_id)
-        high_priority_keywords[text]()
+        print(f"✅ [DEBUG] 找到匹配的關鍵字: '{text}'")
+        current_app.logger.info(f"✅ [DEBUG] 找到匹配的關鍵字: '{text}'")
+        try:
+            UserService.delete_user_simple_state(user_id)
+            UserService.clear_user_complex_state(user_id)
+            print(f"🔄 [DEBUG] 開始執行處理函數: '{text}'")
+            high_priority_keywords[text]()
+            print(f"✅ [DEBUG] 處理函數執行完成: '{text}'")
+        except Exception as e:
+            print(f"❌ [DEBUG] 處理函數執行失敗: '{text}', 錯誤: {e}")
+            current_app.logger.error(f"❌ [DEBUG] 處理函數執行失敗: '{text}', 錯誤: {e}")
+            import traceback
+            traceback.print_exc()
+            # 發送錯誤訊息給用戶
+            line_bot_api.reply_message(event.reply_token, TextSendMessage(text=f"處理 '{text}' 時發生錯誤，請稍後再試。"))
         return
     
     # 檢查是否為成員選擇（在清除狀態之前）
