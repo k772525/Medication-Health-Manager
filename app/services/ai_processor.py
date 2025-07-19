@@ -481,4 +481,52 @@ def run_analysis(image_bytes_list: List[bytes], db_config: dict, api_key: str) -
         traceback.print_exc()
         return None, None
 
+class AIProcessor:
+    """AI 處理器類別，用於各種 AI 分析任務"""
+    
+    def __init__(self):
+        self.api_key = os.environ.get('GEMINI_API_KEY')
+        if not self.api_key:
+            raise ValueError("未設置 GEMINI_API_KEY 環境變數")
+    
+    def analyze_health_data_with_gemini(self, prompt: str) -> str:
+        """使用 Gemini API 分析健康數據"""
+        try:
+            print(f"[Health Analysis] 開始 AI 健康分析...")
+            print(f"[Health Analysis] 提示長度: {len(prompt)} 字符")
+            
+            client = genai.Client(api_key=self.api_key)
+            
+            # 構建分析請求
+            contents = [types.Content(
+                role="user", 
+                parts=[types.Part.from_text(text=prompt)]
+            )]
+            
+            config = types.GenerateContentConfig(
+                temperature=0.3,  # 稍微提高創造性，但保持專業
+                max_output_tokens=1000  # 限制輸出長度
+            )
+            
+            response = client.models.generate_content(
+                model="gemini-2.5-flash",
+                contents=contents,
+                config=config
+            )
+            
+            analysis_result = response.text if hasattr(response, 'text') else ""
+            
+            # 統計 Token 使用
+            if hasattr(response, 'usage_metadata') and response.usage_metadata:
+                total_tokens = getattr(response.usage_metadata, 'total_token_count', 0)
+                print(f"[Health Analysis] Token 使用: {total_tokens}")
+            
+            print(f"[Health Analysis] 分析完成，結果長度: {len(analysis_result)} 字符")
+            return analysis_result
+            
+        except Exception as e:
+            print(f"[Health Analysis] 分析失敗: {e}")
+            traceback.print_exc()
+            return None
+
 # --- END OF FILE: app/services/ai_processor.py (智能篩選優化版) ---

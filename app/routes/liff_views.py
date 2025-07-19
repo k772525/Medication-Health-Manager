@@ -504,6 +504,47 @@ def get_family_list_api(user_id):
         current_app.logger.error(f"獲取家人列表失敗: {e}")
         return jsonify({"error": "獲取家人列表失敗"}), 500
 
+@liff_bp.route('/api/ai_analysis', methods=['POST'])
+def ai_health_analysis():
+    """AI 健康數據分析端點"""
+    try:
+        data = request.get_json()
+        if not data:
+            return jsonify({"error": "缺少請求數據"}), 400
+        
+        prompt = data.get('prompt')
+        user_id = data.get('userId')
+        
+        if not prompt or not user_id:
+            return jsonify({"error": "缺少必要參數：prompt 和 userId"}), 400
+        
+        current_app.logger.info(f"收到 AI 分析請求 - 用戶: {user_id}")
+        current_app.logger.info(f"分析提示長度: {len(prompt)} 字符")
+        
+        # 使用現有的 AI 處理服務
+        from app.services.ai_processor import AIProcessor
+        
+        # 創建 AI 處理器實例
+        ai_processor = AIProcessor()
+        
+        # 調用 Gemini API 進行分析
+        analysis_result = ai_processor.analyze_health_data_with_gemini(prompt)
+        
+        if analysis_result:
+            current_app.logger.info("AI 分析完成")
+            return jsonify({
+                "success": True,
+                "analysis": analysis_result
+            })
+        else:
+            current_app.logger.error("AI 分析返回空結果")
+            return jsonify({"error": "AI 分析失敗，請稍後再試"}), 500
+            
+    except Exception as e:
+        current_app.logger.error(f"AI 分析失敗: {e}")
+        current_app.logger.error(f"錯誤詳情: {traceback.format_exc()}")
+        return jsonify({"error": f"AI 分析服務暫時無法使用: {str(e)}"}), 500
+
 # 移除背景分析函數，現在改為在 prescription_handler 中同步處理
 
 # --- END OF FILE: app/routes/liff_views.py ---
