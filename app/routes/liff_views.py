@@ -538,7 +538,7 @@ def ai_health_analysis():
             })
         else:
             current_app.logger.error("AI 分析返回空結果")
-            return jsonify({"error": "AI 分析失敗，請稍後再試"}), 500
+            return jsonify({"error": "AI 無法分析您的健康數據，可能是數據不足或格式問題。請確保有足夠的健康記錄後再試。"}), 500
             
     except Exception as e:
         current_app.logger.error(f"AI 分析失敗: {e}")

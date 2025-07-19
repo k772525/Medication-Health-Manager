@@ -1518,23 +1518,11 @@
             }
 
             async callGeminiAPI(analysisData) {
-                const prompt = `請分析以下健康數據並提供專業建議：
+                const prompt = `分析健康數據：
 
-測量項目：${analysisData.measurementType}
-對象：${analysisData.targetPerson}
-數據期間：${analysisData.timeRange}
-記錄總數：${analysisData.dataCount} 筆
+${analysisData.measurementType}：${analysisData.recentData}
 
-最近數據：
-${analysisData.recentData}
-
-請提供：
-1. 數據趨勢分析
-2. 健康狀況評估
-3. 具體建議
-4. 注意事項
-
-請用繁體中文回答，語調要專業但親切，避免過於技術性的術語。`;
+請用繁體中文，20字以內簡短評估健康狀況和建議。`;
 
                 const response = await fetch('/api/ai_analysis', {
                     method: 'POST',

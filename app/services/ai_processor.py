@@ -504,8 +504,8 @@ class AIProcessor:
             )]
             
             config = types.GenerateContentConfig(
-                temperature=0.3,  # 稍微提高創造性，但保持專業
-                max_output_tokens=1000  # 限制輸出長度
+                temperature=0.1,  # 降低創造性，保持簡潔
+                max_output_tokens=50   # 嚴格限制輸出長度，確保簡短
             )
             
             response = client.models.generate_content(
@@ -514,15 +514,34 @@ class AIProcessor:
                 config=config
             )
             
-            analysis_result = response.text if hasattr(response, 'text') else ""
+            # 獲取分析結果
+            analysis_result = ""
+            if hasattr(response, 'text') and response.text:
+                analysis_result = response.text
+            elif hasattr(response, 'candidates') and response.candidates:
+                # 嘗試從 candidates 中獲取結果
+                for candidate in response.candidates:
+                    if hasattr(candidate, 'content') and candidate.content:
+                        if hasattr(candidate.content, 'parts') and candidate.content.parts:
+                            for part in candidate.content.parts:
+                                if hasattr(part, 'text') and part.text:
+                                    analysis_result += part.text
             
             # 統計 Token 使用
             if hasattr(response, 'usage_metadata') and response.usage_metadata:
                 total_tokens = getattr(response.usage_metadata, 'total_token_count', 0)
                 print(f"[Health Analysis] Token 使用: {total_tokens}")
             
-            print(f"[Health Analysis] 分析完成，結果長度: {len(analysis_result)} 字符")
-            return analysis_result
+            # 檢查結果
+            if analysis_result and analysis_result.strip():
+                print(f"[Health Analysis] 分析完成，結果長度: {len(analysis_result)} 字符")
+                return analysis_result.strip()
+            else:
+                print(f"[Health Analysis] API 回應為空或無效")
+                print(f"[Health Analysis] 回應物件屬性: {dir(response)}")
+                if hasattr(response, 'candidates'):
+                    print(f"[Health Analysis] Candidates 數量: {len(response.candidates) if response.candidates else 0}")
+                return None
             
         except Exception as e:
             print(f"[Health Analysis] 分析失敗: {e}")
