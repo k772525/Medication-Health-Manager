@@ -2048,55 +2048,35 @@ ${analysisData.recentData}
         }
 
         function resetAIAnalysis() {
-            const aiAnalysisResult = document.getElementById('aiAnalysisResult');
-            const aiAnalysisLoading = document.getElementById('aiAnalysisLoading');
-            const aiAnalysisEmpty = document.getElementById('aiAnalysisEmpty');
             const aiAnalysisBtn = document.getElementById('aiAnalysisBtn');
-            
-            aiAnalysisResult.classList.add('hidden');
-            aiAnalysisLoading.classList.add('hidden');
-            aiAnalysisEmpty.classList.remove('hidden');
-            
-            aiAnalysisBtn.disabled = false;
-            aiAnalysisBtn.innerHTML = '<span class="text-lg">✨</span> 開始分析';
+            if (aiAnalysisBtn) {
+                aiAnalysisBtn.disabled = false;
+                aiAnalysisBtn.innerHTML = '<span class="text-lg">🤖</span> AI 健康分析';
+            }
         }
 
         async function performAIAnalysis(logs, type, targetPerson) {
-            const aiAnalysisResult = document.getElementById('aiAnalysisResult');
-            const aiAnalysisLoading = document.getElementById('aiAnalysisLoading');
-            const aiAnalysisEmpty = document.getElementById('aiAnalysisEmpty');
-            const aiAnalysisContent = document.getElementById('aiAnalysisContent');
             const aiAnalysisBtn = document.getElementById('aiAnalysisBtn');
             
             try {
                 // 顯示載入狀態
-                aiAnalysisEmpty.classList.add('hidden');
-                aiAnalysisResult.classList.add('hidden');
-                aiAnalysisLoading.classList.remove('hidden');
-                
                 aiAnalysisBtn.disabled = true;
-                aiAnalysisBtn.innerHTML = '<div class="loading-spinner-small mr-2"></div> 分析中...';
+                aiAnalysisBtn.innerHTML = '<span class="text-lg">⏳</span> 分析中...';
                 
                 // 執行 AI 分析
                 const analysisResult = await aiHealthAnalyzer.analyzeHealthData(logs, type, targetPerson);
                 
-                // 顯示分析結果
-                aiAnalysisContent.innerHTML = analysisResult;
-                aiAnalysisLoading.classList.add('hidden');
-                aiAnalysisResult.classList.remove('hidden');
+                // 顯示分析結果在彈出視窗中
+                showAlert('AI 健康分析結果', analysisResult.replace(/<[^>]*>/g, '')); // 移除 HTML 標籤
                 
                 aiAnalysisBtn.disabled = false;
-                aiAnalysisBtn.innerHTML = '<span class="text-lg">🔄</span> 重新分析';
+                aiAnalysisBtn.innerHTML = '<span class="text-lg">🤖</span> AI 健康分析';
                 
             } catch (error) {
                 console.error('AI 分析失敗:', error);
                 
-                // 顯示錯誤狀態
-                aiAnalysisLoading.classList.add('hidden');
-                aiAnalysisEmpty.classList.remove('hidden');
-                
                 aiAnalysisBtn.disabled = false;
-                aiAnalysisBtn.innerHTML = '<span class="text-lg">✨</span> 開始分析';
+                aiAnalysisBtn.innerHTML = '<span class="text-lg">🤖</span> AI 健康分析';
                 
                 showAlert('AI 分析失敗', error.message || '分析過程中發生錯誤，請稍後再試');
             }
