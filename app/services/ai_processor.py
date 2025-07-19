@@ -514,6 +514,26 @@ class AIProcessor:
                 config=config
             )
             
+            # 詳細調試回應內容
+            print(f"[Health Analysis] 檢查回應內容...")
+            print(f"[Health Analysis] response.text 存在: {hasattr(response, 'text')}")
+            if hasattr(response, 'text'):
+                print(f"[Health Analysis] response.text 值: '{response.text}'")
+                print(f"[Health Analysis] response.text 類型: {type(response.text)}")
+            
+            print(f"[Health Analysis] response.candidates 存在: {hasattr(response, 'candidates')}")
+            if hasattr(response, 'candidates'):
+                print(f"[Health Analysis] candidates 數量: {len(response.candidates) if response.candidates else 0}")
+                if response.candidates:
+                    for i, candidate in enumerate(response.candidates):
+                        print(f"[Health Analysis] Candidate {i}: {candidate}")
+                        if hasattr(candidate, 'content'):
+                            print(f"[Health Analysis] Candidate {i} content: {candidate.content}")
+            
+            # 檢查是否有 prompt_feedback
+            if hasattr(response, 'prompt_feedback'):
+                print(f"[Health Analysis] prompt_feedback: {response.prompt_feedback}")
+            
             # 獲取分析結果
             analysis_result = ""
             if hasattr(response, 'text') and response.text:
@@ -535,12 +555,10 @@ class AIProcessor:
             # 檢查結果
             if analysis_result and analysis_result.strip():
                 print(f"[Health Analysis] 分析完成，結果長度: {len(analysis_result)} 字符")
+                print(f"[Health Analysis] 分析結果: '{analysis_result.strip()}'")
                 return analysis_result.strip()
             else:
                 print(f"[Health Analysis] API 回應為空或無效")
-                print(f"[Health Analysis] 回應物件屬性: {dir(response)}")
-                if hasattr(response, 'candidates'):
-                    print(f"[Health Analysis] Candidates 數量: {len(response.candidates) if response.candidates else 0}")
                 return None
             
         except Exception as e:
