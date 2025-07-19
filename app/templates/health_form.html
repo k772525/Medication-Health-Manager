@@ -589,6 +589,355 @@
                 inset 0 2px 4px rgba(255, 255, 255, 0.9),
                 inset 0 -1px 2px rgba(0, 0, 0, 0.08);
         }
+
+        /* 分析框框樣式 */
+        .analysis-cards-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.5rem;
+            margin: 1.5rem 0;
+        }
+
+        @media (max-width: 768px) {
+            .analysis-cards-container {
+                grid-template-columns: 1fr;
+                gap: 1rem;
+            }
+        }
+
+        .analysis-card {
+            background: linear-gradient(145deg, rgba(255, 255, 255, 0.95), rgba(248, 250, 252, 0.95));
+            backdrop-filter: blur(15px);
+            border-radius: 16px;
+            padding: 1.5rem;
+            box-shadow:
+                0 8px 20px -6px rgba(0, 0, 0, 0.1),
+                0 4px 8px -2px rgba(0, 0, 0, 0.05),
+                inset 0 1px 0 rgba(255, 255, 255, 0.8);
+            border: 1px solid rgba(255, 255, 255, 0.4);
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .analysis-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, #667eea, #764ba2);
+            transform: scaleX(0);
+            transition: transform 0.3s ease;
+        }
+
+        .analysis-card:hover::before {
+            transform: scaleX(1);
+        }
+
+        .analysis-card:hover {
+            transform: translateY(-4px);
+            box-shadow:
+                0 12px 30px -8px rgba(0, 0, 0, 0.15),
+                0 6px 12px -3px rgba(0, 0, 0, 0.1),
+                inset 0 1px 0 rgba(255, 255, 255, 0.9);
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+            padding-bottom: 0.75rem;
+            border-bottom: 1px solid rgba(156, 163, 175, 0.2);
+        }
+
+        .card-header h3 {
+            font-size: 1.125rem;
+            font-weight: 700;
+            color: #374151;
+            margin: 0;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .powered-by {
+            font-size: 0.75rem;
+            color: #6b7280;
+            background: rgba(102, 126, 234, 0.1);
+            padding: 0.25rem 0.5rem;
+            border-radius: 0.5rem;
+            font-weight: 500;
+        }
+
+        .data-count {
+            font-size: 0.75rem;
+            color: #6b7280;
+            background: rgba(34, 197, 94, 0.1);
+            padding: 0.25rem 0.5rem;
+            border-radius: 0.5rem;
+            font-weight: 500;
+        }
+
+        .analysis-btn {
+            width: 100%;
+            background: linear-gradient(145deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            padding: 1rem;
+            font-weight: 600;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .analysis-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.5s ease;
+        }
+
+        .analysis-btn:hover::before {
+            left: 100%;
+        }
+
+        .analysis-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
+        }
+
+        .analysis-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .btn-icon {
+            font-size: 1.25rem;
+        }
+
+        .analysis-result {
+            background: rgba(248, 250, 252, 0.8);
+            border-radius: 12px;
+            padding: 1rem;
+            margin-top: 1rem;
+            border: 1px solid rgba(156, 163, 175, 0.2);
+            line-height: 1.6;
+        }
+
+        .loading-state {
+            text-align: center;
+            padding: 2rem 1rem;
+            color: #6b7280;
+        }
+
+        .loading-state .loading-spinner {
+            width: 2rem;
+            height: 2rem;
+            border: 3px solid #e5e7eb;
+            border-top: 3px solid #667eea;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 1rem;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .stat-item {
+            text-align: center;
+            padding: 0.75rem;
+            background: rgba(255, 255, 255, 0.6);
+            border-radius: 8px;
+            border: 1px solid rgba(156, 163, 175, 0.1);
+        }
+
+        .stat-label {
+            font-size: 0.75rem;
+            color: #6b7280;
+            font-weight: 500;
+            margin-bottom: 0.25rem;
+        }
+
+        .stat-value {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: #374151;
+        }
+
+        .trend-indicator {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            padding: 0.75rem;
+            background: rgba(34, 197, 94, 0.1);
+            border-radius: 8px;
+            border: 1px solid rgba(34, 197, 94, 0.2);
+        }
+
+        .trend-icon {
+            font-size: 1.25rem;
+        }
+
+        .trend-text {
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: #059669;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        /* 分析框框樣式 */
+        .analysis-card {
+            background: linear-gradient(145deg, #ffffff, #f8fafc);
+            border-radius: 20px;
+            padding: 1.5rem;
+            box-shadow:
+                0 10px 25px -5px rgba(0, 0, 0, 0.1),
+                0 4px 6px -2px rgba(0, 0, 0, 0.05),
+                inset 0 1px 0 rgba(255, 255, 255, 0.6);
+            border: 1px solid rgba(255, 255, 255, 0.8);
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .analysis-card:hover {
+            transform: translateY(-2px);
+            box-shadow:
+                0 15px 35px -8px rgba(0, 0, 0, 0.15),
+                0 6px 12px -4px rgba(0, 0, 0, 0.1);
+        }
+
+        .ai-analysis-card {
+            background: linear-gradient(145deg, #f0f9ff, #e0f2fe);
+            border-left: 4px solid #0ea5e9;
+        }
+
+        .stats-card {
+            background: linear-gradient(145deg, #f0fdf4, #dcfce7);
+            border-left: 4px solid #22c55e;
+        }
+
+        .analysis-button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+        }
+
+        .analysis-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
+        }
+
+        .analysis-button:disabled {
+            background: linear-gradient(135deg, #9ca3af 0%, #6b7280 100%);
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .loading-spinner-small {
+            width: 20px;
+            height: 20px;
+            border: 2px solid #ffffff;
+            border-top: 2px solid transparent;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .stat-item {
+            background: rgba(255, 255, 255, 0.8);
+            padding: 1rem;
+            border-radius: 12px;
+            text-align: center;
+            border: 1px solid rgba(0, 0, 0, 0.05);
+        }
+
+        .stat-value {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #1f2937;
+        }
+
+        .stat-label {
+            font-size: 0.875rem;
+            color: #6b7280;
+            margin-top: 0.25rem;
+        }
+
+        .analysis-result {
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 12px;
+            padding: 1rem;
+            margin-top: 1rem;
+            border: 1px solid rgba(0, 0, 0, 0.05);
+            line-height: 1.6;
+        }
+
+        .trend-indicator {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.25rem;
+            font-size: 0.875rem;
+            font-weight: 600;
+            padding: 0.25rem 0.5rem;
+            border-radius: 6px;
+        }
+
+        .trend-up {
+            background: rgba(239, 68, 68, 0.1);
+            color: #dc2626;
+        }
+
+        .trend-down {
+            background: rgba(34, 197, 94, 0.1);
+            color: #16a34a;
+        }
+
+        .trend-stable {
+            background: rgba(107, 114, 128, 0.1);
+            color: #4b5563;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
     </style>
 </head>
 
@@ -641,6 +990,25 @@
                     </h2>
                     <div class="chart-wrapper-medium">
                         <canvas id="historyChart" class="chart-canvas-medium"></canvas>
+                    </div>
+
+                    <!-- 健康數據分析功能區域 -->
+                    <div class="flex gap-4 mt-4 mb-4">
+                        <!-- AI 健康分析按鈕 -->
+                        <button id="aiAnalysisBtn" class="primary-button flex-1 px-4 py-1 rounded-lg font-semibold shadow-lg transition-all duration-300 flex items-center justify-center gap-2">
+                            <span class="text-lg">🤖</span> AI 健康分析
+                        </button>
+
+                        <!-- 統計資訊框框 -->
+                        <div class="back-button flex-1 px-4 py-2 rounded-lg font-semibold text-gray-700 transition-all duration-300 flex items-center justify-center gap-2">
+                            <div class="text-center">
+                                <div class="text-base font-semibold text-gray-800 mb-1 flex items-center justify-center gap-1">
+                                    <span class="text-lg">📊</span> 平均值
+                                </div>
+                                <div id="statsAverage" class="text-lg font-bold text-gray-900">-</div>
+                                <div id="statsUnit" class="text-xs text-gray-500"></div>
+                            </div>
+                        </div>
                     </div>
 
                     <!-- 按鈕區域 - 添加新紀錄和返回按鈕並排 -->
@@ -764,6 +1132,8 @@
         let recordsPerPage = 5;
         let totalRecords = 0;
         let allHistoryLogs = [];
+        let healthStatsCalculator = null;
+        let aiHealthAnalyzer = null;
         const measurementTypes = [
             { key: 'weight', name: '體重', icon: '<span class="animated-emoji">⚖️</span>', unit: 'kg', color: 'text-orange-500', fields: ['weight'] },
             { key: 'blood_pressure', name: '血壓', icon: '<span class="heartbeat-emoji">💗</span>', unit: 'mmHg', color: 'text-red-500', fields: ['systolic_pressure', 'diastolic_pressure'] },
@@ -921,6 +1291,12 @@
                     setupPaginationEvents(); // 設置分頁事件
                     console.log("分頁事件設置完成");
 
+                    // 初始化分析功能
+                    healthStatsCalculator = new HealthStatsCalculator();
+                    aiHealthAnalyzer = new AIHealthAnalyzer();
+                    setupAnalysisEvents(); // 設置分析事件
+                    console.log("分析功能初始化完成");
+
                     await loadAllHealthData(userProfile.userId);
                     console.log("健康資料載入完成");
                 } catch (initError) {
@@ -979,6 +1355,221 @@
                     setTimeout(() => {
                         showAlert('LIFF 錯誤', `${errorMessage}: ${errorDetail}`);
                     }, 1000);
+                }
+            }
+        }
+
+        // --- 健康統計計算器 ---
+        class HealthStatsCalculator {
+            constructor() {
+                this.stats = {};
+            }
+
+            calculateStats(logs, type) {
+                if (!logs || logs.length === 0) {
+                    return null;
+                }
+
+                const values = [];
+                
+                if (type.key === 'blood_pressure') {
+                    const systolicValues = logs.filter(log => log.systolic_pressure != null).map(log => log.systolic_pressure);
+                    const diastolicValues = logs.filter(log => log.diastolic_pressure != null).map(log => log.diastolic_pressure);
+                    
+                    if (systolicValues.length === 0 || diastolicValues.length === 0) {
+                        return null;
+                    }
+
+                    return {
+                        systolic: this.calculateBasicStats(systolicValues),
+                        diastolic: this.calculateBasicStats(diastolicValues),
+                        count: Math.min(systolicValues.length, diastolicValues.length),
+                        trend: this.calculateTrend(systolicValues.slice(-5))
+                    };
+                } else {
+                    const fieldValues = logs.filter(log => log[type.key] != null).map(log => log[type.key]);
+                    
+                    if (fieldValues.length === 0) {
+                        return null;
+                    }
+
+                    return {
+                        ...this.calculateBasicStats(fieldValues),
+                        count: fieldValues.length,
+                        trend: this.calculateTrend(fieldValues.slice(-5))
+                    };
+                }
+            }
+
+            calculateBasicStats(values) {
+                if (!values || values.length === 0) return null;
+
+                const sorted = [...values].sort((a, b) => a - b);
+                const sum = values.reduce((acc, val) => acc + val, 0);
+                const avg = sum / values.length;
+                
+                // 計算標準差
+                const variance = values.reduce((acc, val) => acc + Math.pow(val - avg, 2), 0) / values.length;
+                const stdDev = Math.sqrt(variance);
+
+                return {
+                    min: sorted[0],
+                    max: sorted[sorted.length - 1],
+                    avg: avg,
+                    stdDev: stdDev,
+                    median: this.calculateMedian(sorted)
+                };
+            }
+
+            calculateMedian(sortedValues) {
+                const mid = Math.floor(sortedValues.length / 2);
+                return sortedValues.length % 2 === 0
+                    ? (sortedValues[mid - 1] + sortedValues[mid]) / 2
+                    : sortedValues[mid];
+            }
+
+            calculateTrend(recentValues) {
+                if (!recentValues || recentValues.length < 2) {
+                    return 'stable';
+                }
+
+                const firstHalf = recentValues.slice(0, Math.ceil(recentValues.length / 2));
+                const secondHalf = recentValues.slice(Math.floor(recentValues.length / 2));
+                
+                const firstAvg = firstHalf.reduce((a, b) => a + b, 0) / firstHalf.length;
+                const secondAvg = secondHalf.reduce((a, b) => a + b, 0) / secondHalf.length;
+                
+                const change = ((secondAvg - firstAvg) / firstAvg) * 100;
+                
+                if (Math.abs(change) < 5) return 'stable';
+                return change > 0 ? 'up' : 'down';
+            }
+
+            getTrendDisplay(trend, type) {
+                const trends = {
+                    'up': { icon: '📈', text: '上升趨勢', class: 'trend-up' },
+                    'down': { icon: '📉', text: '下降趨勢', class: 'trend-down' },
+                    'stable': { icon: '➡️', text: '穩定', class: 'trend-stable' }
+                };
+                
+                return trends[trend] || trends['stable'];
+            }
+        }
+
+        // --- AI 健康分析器 ---
+        class AIHealthAnalyzer {
+            constructor() {
+                this.isAnalyzing = false;
+                this.lastAnalysisTime = null;
+                this.rateLimitMs = 30000; // 30秒限制
+            }
+
+            async analyzeHealthData(logs, type, targetPerson) {
+                if (this.isAnalyzing) {
+                    throw new Error('分析正在進行中，請稍候...');
+                }
+
+                // 檢查頻率限制
+                const now = Date.now();
+                if (this.lastAnalysisTime && (now - this.lastAnalysisTime) < this.rateLimitMs) {
+                    const remainingTime = Math.ceil((this.rateLimitMs - (now - this.lastAnalysisTime)) / 1000);
+                    throw new Error(`請等待 ${remainingTime} 秒後再次分析`);
+                }
+
+                if (!logs || logs.length < 3) {
+                    throw new Error('需要至少 3 筆記錄才能進行 AI 分析');
+                }
+
+                this.isAnalyzing = true;
+                this.lastAnalysisTime = now;
+
+                try {
+                    const analysisData = this.formatAnalysisPrompt(logs, type, targetPerson);
+                    const result = await this.callGeminiAPI(analysisData);
+                    return this.formatAnalysisResult(result);
+                } finally {
+                    this.isAnalyzing = false;
+                }
+            }
+
+            formatAnalysisPrompt(logs, type, targetPerson) {
+                const recentLogs = logs.slice(0, 10); // 最近10筆記錄
+                const stats = healthStatsCalculator.calculateStats(logs, type);
+                
+                let dataDescription = '';
+                if (type.key === 'blood_pressure') {
+                    dataDescription = recentLogs.map(log => 
+                        `${new Date(log.record_time).toLocaleDateString()}: ${log.systolic_pressure}/${log.diastolic_pressure} mmHg`
+                    ).join('\n');
+                } else {
+                    dataDescription = recentLogs.map(log => 
+                        `${new Date(log.record_time).toLocaleDateString()}: ${log[type.key]} ${type.unit}`
+                    ).join('\n');
+                }
+
+                return {
+                    measurementType: type.name,
+                    targetPerson: targetPerson,
+                    dataCount: logs.length,
+                    recentData: dataDescription,
+                    statistics: stats,
+                    timeRange: `${new Date(logs[logs.length - 1].record_time).toLocaleDateString()} 至 ${new Date(logs[0].record_time).toLocaleDateString()}`
+                };
+            }
+
+            async callGeminiAPI(analysisData) {
+                const prompt = `請分析以下健康數據並提供專業建議：
+
+測量項目：${analysisData.measurementType}
+對象：${analysisData.targetPerson}
+數據期間：${analysisData.timeRange}
+記錄總數：${analysisData.dataCount} 筆
+
+最近數據：
+${analysisData.recentData}
+
+請提供：
+1. 數據趨勢分析
+2. 健康狀況評估
+3. 具體建議
+4. 注意事項
+
+請用繁體中文回答，語調要專業但親切，避免過於技術性的術語。`;
+
+                const response = await fetch('/api/ai_analysis', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        prompt: prompt,
+                        userId: userProfile.userId
+                    })
+                });
+
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.error || 'AI 分析服務暫時無法使用');
+                }
+
+                const result = await response.json();
+                return result.analysis;
+            }
+
+            formatAnalysisResult(analysisText) {
+                // 簡單的格式化，將分析結果分段顯示
+                const sections = analysisText.split(/\d+\.\s+/).filter(section => section.trim());
+                
+                if (sections.length > 1) {
+                    return sections.map((section, index) => {
+                        const title = ['數據趨勢分析', '健康狀況評估', '具體建議', '注意事項'][index] || '分析結果';
+                        return `<div class="mb-4">
+                            <h4 class="font-semibold text-gray-800 mb-2">${title}</h4>
+                            <p class="text-gray-700">${section.trim()}</p>
+                        </div>`;
+                    }).join('');
+                } else {
+                    return `<div class="text-gray-700">${analysisText}</div>`;
                 }
             }
         }
@@ -1110,6 +1701,8 @@
 
             renderHistoryChart(personLogs, type);
             renderHistoryTable(personLogs, type);
+            updateHealthStats(personLogs, type);
+            resetAIAnalysis();
         }
 
         function renderHistoryChart(logs, type, useCurrentPage = false) {
@@ -1393,6 +1986,121 @@
             }
         }
 
+        // --- 分析功能相關函數 ---
+        function setupAnalysisEvents() {
+            const aiAnalysisBtn = document.getElementById('aiAnalysisBtn');
+            
+            aiAnalysisBtn.addEventListener('click', async () => {
+                if (!currentViewingType || !allHistoryLogs || allHistoryLogs.length === 0) {
+                    showAlert('分析提示', '請先選擇健康數據類型並確保有足夠的記錄');
+                    return;
+                }
+
+                const targetPerson = getSelectedPerson();
+                const personLogs = allHistoryLogs.filter(log => 
+                    log.recorder_id === userProfile.userId && 
+                    log.target_person === targetPerson &&
+                    currentViewingType.fields.every(f => log[f] != null)
+                );
+
+                await performAIAnalysis(personLogs, currentViewingType, targetPerson);
+            });
+        }
+
+        function updateHealthStats(logs, type) {
+            const statsAverage = document.getElementById('statsAverage');
+            const statsUnit = document.getElementById('statsUnit');
+            
+            if (!logs || logs.length === 0) {
+                statsAverage.textContent = '-';
+                statsUnit.textContent = '';
+                return;
+            }
+
+            const targetPerson = getSelectedPerson();
+            const personLogs = logs.filter(log => 
+                log.recorder_id === userProfile.userId && 
+                log.target_person === targetPerson &&
+                type.fields.every(f => log[f] != null)
+            );
+
+            if (personLogs.length === 0) {
+                statsAverage.textContent = '-';
+                statsUnit.textContent = '';
+                return;
+            }
+
+            const stats = healthStatsCalculator.calculateStats(personLogs, type);
+            
+            if (!stats) {
+                statsAverage.textContent = '-';
+                statsUnit.textContent = '';
+                return;
+            }
+
+            if (type.key === 'blood_pressure') {
+                statsAverage.textContent = `${stats.systolic.avg.toFixed(1)}/${stats.diastolic.avg.toFixed(1)}`;
+                statsUnit.textContent = type.unit;
+            } else {
+                statsAverage.textContent = stats.avg.toFixed(1);
+                statsUnit.textContent = type.unit;
+            }
+        }
+
+        function resetAIAnalysis() {
+            const aiAnalysisResult = document.getElementById('aiAnalysisResult');
+            const aiAnalysisLoading = document.getElementById('aiAnalysisLoading');
+            const aiAnalysisEmpty = document.getElementById('aiAnalysisEmpty');
+            const aiAnalysisBtn = document.getElementById('aiAnalysisBtn');
+            
+            aiAnalysisResult.classList.add('hidden');
+            aiAnalysisLoading.classList.add('hidden');
+            aiAnalysisEmpty.classList.remove('hidden');
+            
+            aiAnalysisBtn.disabled = false;
+            aiAnalysisBtn.innerHTML = '<span class="text-lg">✨</span> 開始分析';
+        }
+
+        async function performAIAnalysis(logs, type, targetPerson) {
+            const aiAnalysisResult = document.getElementById('aiAnalysisResult');
+            const aiAnalysisLoading = document.getElementById('aiAnalysisLoading');
+            const aiAnalysisEmpty = document.getElementById('aiAnalysisEmpty');
+            const aiAnalysisContent = document.getElementById('aiAnalysisContent');
+            const aiAnalysisBtn = document.getElementById('aiAnalysisBtn');
+            
+            try {
+                // 顯示載入狀態
+                aiAnalysisEmpty.classList.add('hidden');
+                aiAnalysisResult.classList.add('hidden');
+                aiAnalysisLoading.classList.remove('hidden');
+                
+                aiAnalysisBtn.disabled = true;
+                aiAnalysisBtn.innerHTML = '<div class="loading-spinner-small mr-2"></div> 分析中...';
+                
+                // 執行 AI 分析
+                const analysisResult = await aiHealthAnalyzer.analyzeHealthData(logs, type, targetPerson);
+                
+                // 顯示分析結果
+                aiAnalysisContent.innerHTML = analysisResult;
+                aiAnalysisLoading.classList.add('hidden');
+                aiAnalysisResult.classList.remove('hidden');
+                
+                aiAnalysisBtn.disabled = false;
+                aiAnalysisBtn.innerHTML = '<span class="text-lg">🔄</span> 重新分析';
+                
+            } catch (error) {
+                console.error('AI 分析失敗:', error);
+                
+                // 顯示錯誤狀態
+                aiAnalysisLoading.classList.add('hidden');
+                aiAnalysisEmpty.classList.remove('hidden');
+                
+                aiAnalysisBtn.disabled = false;
+                aiAnalysisBtn.innerHTML = '<span class="text-lg">✨</span> 開始分析';
+                
+                showAlert('AI 分析失敗', error.message || '分析過程中發生錯誤，請稍後再試');
+            }
+        }
 
         function setupPaginationEvents() {
             const recordsSelect = document.getElementById('recordsPerPage');
