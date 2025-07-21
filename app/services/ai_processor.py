@@ -155,11 +155,17 @@ def smart_filter_drugs(all_drugs: List[Dict], keywords: List[str]) -> List[Dict]
     filtered_drugs = []
     
     for drug in all_drugs:
-        drug_zh = drug.get('drug_name_zh', '').lower()
-        drug_en = drug.get('drug_name_en', '').lower()
+        # 防止 None 值
+        drug_zh_raw = drug.get('drug_name_zh', '')
+        drug_en_raw = drug.get('drug_name_en', '')
+        drug_zh = (drug_zh_raw or '').lower()
+        drug_en = (drug_en_raw or '').lower()
         
         # 檢查是否包含任何關鍵字
         for keyword in keywords:
+            # 防止 keyword 為 None
+            if keyword is None:
+                continue
             keyword_lower = keyword.lower()
             if (keyword_lower in drug_zh or 
                 keyword_lower in drug_en or
@@ -392,7 +398,7 @@ def run_analysis(image_bytes_list: List[bytes], db_config: dict, api_key: str) -
         successful_matches = []
         for med in medications:
             matched_id = med.get('matched_drug_id')
-            if matched_id and str(matched_id).lower() not in ['null', 'none', ''] and str(matched_id).strip():
+            if matched_id and str(matched_id or '').lower() not in ['null', 'none', ''] and str(matched_id or '').strip():
                 successful_matches.append(med)
         
         analysis_result['successful_match_count'] = len(successful_matches)
@@ -479,7 +485,13 @@ def run_analysis(image_bytes_list: List[bytes], db_config: dict, api_key: str) -
     except Exception as e:
         print(f"[Smart Filter] 分析處理錯誤: {e}")
         traceback.print_exc()
-        return None, None
+        error_info = {
+            "error": f"AI分析異常: {str(e)}",
+            "error_type": type(e).__name__,
+            "model": "smart_filter_parallel",
+            "version": "error_handling"
+        }
+        return None, error_info
 
 class AIProcessor:
     """AI 處理器類別，用於各種 AI 分析任務"""
