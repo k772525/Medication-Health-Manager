@@ -25,6 +25,7 @@ share/python-wheels/
 .installed.cfg
 *.egg
 MANIFEST
+.kiro/
 
 # PyInstaller
 #  Usually these files are written by a python script from a template
@@ -198,7 +199,7 @@ Thumbs.db
 # 測試檔案
 test_*.py
 *_test.py
-setup_richmenu.py
+
 
 # 部署相關
 .env.local
