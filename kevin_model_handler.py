@@ -168,7 +168,7 @@ def detect_pills(pil_image):
         return {
             'detections': detections,
             'elapsed_time': elapsed_time,
-            'model_name': 'kevin模型',
+            'model_name': 'Transformer模型',
             'annotated_image_url': annotated_image_url,
             'detection_mode': 'single', # 標記為單一模型結果
             'success': True,

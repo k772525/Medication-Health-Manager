@@ -208,7 +208,7 @@ def generate_single_model_selection_menu():
                     "color": "#74B9FF",
                     "action": {
                         "type": "postback",
-                        "label": "🎯kevin模型",
+                        "label": "🎯Transformer模型",
                         "data": "action=use_single_model&model=3"
                     }
                 }
@@ -268,7 +268,7 @@ def generate_single_model_selection_menu():
                     "backgroundColor": "#E8F5E8",
                     "cornerRadius": "8px",
                     "contents": [
-                        create_text("🎯kevin模型-RF-DETR ONNX", weight="bold", color="#2E7D32"),
+                        create_text("🎯Transformer-RF-DETR", weight="bold", color="#2E7D32"),
                         create_text("• 基於 Transformer 的檢測架構\n• 優化的 ONNX 推理引擎\n• 特別適合小物件檢測\n• 在藥丸形狀辨識上表現優異", size="sm", wrap=True, color="#424242")
                     ]
                 },
@@ -593,8 +593,8 @@ def generate_yolo_result_card_v2_dict(analysis_result: dict, pills_info_from_db:
     model_display_names = {
         'yolo12': '🧠 高精度模型 (YOLO12)',
         'yolo11': '⚡ 高效率模型 (YOLO11)', 
-        'kevin_model': '🎯 Kevin模型 (RF-DETR)',
-        'rf_detr': '🎯 Kevin模型 (RF-DETR)',
+        'Transformer': '🎯 Transformer模型 (RF-DETR)',
+        'rf_detr': '🎯 Transformer模型 (RF-DETR)',
         'multi_model': '🚀 多模型綜合辨識'
     }
     
@@ -984,8 +984,7 @@ def generate_yolo_result_card_v2(analysis_result: dict, pills_info_from_db: list
     model_display_names = {
         'yolo12': '🧠 高精度模型 (YOLO12)',
         'yolo11': '⚡ 高效率模型 (YOLO11)', 
-        'kevin_model': '🎯 Kevin模型 (RF-DETR)',
-        'rf_detr': '🎯 Kevin模型 (RF-DETR)',
+        'Transformer': '🎯 Transformer模型 (RF-DETR)',
         'multi_model': '🚀 多模型綜合辨識'
     }
     

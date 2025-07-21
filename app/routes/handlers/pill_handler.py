@@ -301,7 +301,7 @@ def handle(event):
             model_display_names = {
                 '1': '🧠 高精度模型',
                 '2': '⚡ 高效率模型', 
-                '3': '🎯 Kevin模型'
+                '3': '🎯 Transformer模型'
             }
             
             model_name = model_display_names.get(model_id, f'模型 {model_id}')
