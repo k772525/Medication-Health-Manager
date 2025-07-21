@@ -585,6 +585,9 @@ def generate_yolo_result_card_v2_dict(analysis_result: dict, pills_info_from_db:
     detections = analysis_result.get('detections', [])
     elapsed_time = analysis_result.get('elapsed_time', 0)
     model_name = analysis_result.get('model_name', '未知模型')
+    # 防止 model_name 為 None
+    if model_name is None:
+        model_name = '未知模型'
     
     # 自定義模型顯示名稱
     model_display_names = {
@@ -973,6 +976,9 @@ def generate_yolo_result_card_v2(analysis_result: dict, pills_info_from_db: list
     detections = analysis_result.get('detections', [])
     elapsed_time = analysis_result.get('elapsed_time', 0)
     model_name = analysis_result.get('model_name', '未知模型')
+    # 防止 model_name 為 None
+    if model_name is None:
+        model_name = '未知模型'
     
     # 自定義模型顯示名稱
     model_display_names = {
