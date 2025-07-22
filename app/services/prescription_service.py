@@ -85,42 +85,56 @@ class PrescriptionService:
         import json
         
         try:
-            # 組員的 OCR API 端點
-            api_url = "https://ocr-23010935669.asia-east1.run.app/predict"
+            # 組員的 FastAPI OCR 端點
+            api_url = "https://ocr-23010935669.asia-east1.run.app/api/v1/analyze"
             
             print(f"[OCR API] 開始調用 API: {api_url}")
             
             # 準備請求資料
-            files = {
-                'file': ('prescription.jpg', image_bytes, 'image/jpeg')
+            files = {'photos': ('prescription.jpg', image_bytes, 'image/jpeg')}
+            data = {
+                'line_user_id': 'unknown',
+                'member': '本人'
             }
             
             # 發送請求
             response = requests.post(
                 api_url,
                 files=files,
-                timeout=30  # 30秒超時
+                data=data,
+                timeout=60  # 60秒超時
             )
             
             if response.status_code == 200:
                 api_result = response.json()
                 print(f"[OCR API] API 調用成功")
                 
-                # 轉換 API 結果為統一格式
-                analysis_result = PrescriptionService.convert_api_result_to_standard_format(api_result)
-                
-                # 建立使用統計
-                usage_info = {
-                    "model": "ocr_api",
-                    "version": "api_ocr",
-                    "execution_time": response.elapsed.total_seconds(),
-                    "api_response_time": response.elapsed.total_seconds(),
-                    "total_tokens": 0,  # API 不消耗 TOKEN
-                    "token_savings": "100%",  # API 不消耗 TOKEN
-                    "api_status": "success"
-                }
-                
-                return analysis_result, usage_info
+                if api_result.get("status") == "completed":
+                    # 預處理數值型欄位
+                    fastapi_data = api_result.get("data", api_result)
+                    if "medications" in fastapi_data:
+                        for med in fastapi_data["medications"]:
+                            if "dose_quantity" in med and isinstance(med["dose_quantity"], (int, float)):
+                                med["dose_quantity"] = str(med["dose_quantity"])
+                    
+                    # 轉換 API 結果為統一格式
+                    analysis_result = PrescriptionService.convert_api_result_to_standard_format(fastapi_data)
+                    
+                    # 建立使用統計
+                    usage_info = {
+                        "model": "ocr_api",
+                        "version": "api_ocr",
+                        "execution_time": response.elapsed.total_seconds(),
+                        "api_response_time": response.elapsed.total_seconds(),
+                        "total_tokens": 0,  # API 不消耗 TOKEN
+                        "token_savings": "100%",  # API 不消耗 TOKEN
+                        "api_status": "success"
+                    }
+                    
+                    return analysis_result, usage_info
+                else:
+                    print(f"[OCR API] API 處理未完成: {api_result.get('status')}")
+                    return None, {"error": f"API 處理未完成: {api_result.get('status')}"}
                 
             else:
                 print(f"[OCR API] API 調用失敗: {response.status_code}")
