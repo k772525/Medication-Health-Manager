@@ -88,6 +88,7 @@ class PrescriptionService:
             api_url = "https://ocr-23010935669.asia-east1.run.app/api/v1/analyze"
             
             print(f"[OCR API] 開始調用 API: {api_url}")
+            print(f"[OCR API] 圖片大小: {len(image_bytes)} bytes")
             
             # 準備請求資料
             files = {'photos': ('prescription.jpg', image_bytes, 'image/jpeg')}
@@ -95,6 +96,9 @@ class PrescriptionService:
                 'line_user_id': 'unknown',
                 'member': '本人'
             }
+            
+            print(f"[OCR API] 請求參數: {data}")
+            print(f"[OCR API] 文件參數: photos -> prescription.jpg ({len(image_bytes)} bytes)")
             
             # 發送請求
             response = requests.post(
@@ -104,9 +108,18 @@ class PrescriptionService:
                 timeout=60  # 60秒超時
             )
             
+            print(f"[OCR API] 收到回應: {response.status_code}")
+            print(f"[OCR API] 回應標頭: {dict(response.headers)}")
+            
             if response.status_code == 200:
-                api_result = response.json()
-                print(f"[OCR API] API 調用成功")
+                try:
+                    api_result = response.json()
+                    print(f"[OCR API] API 調用成功")
+                    print(f"[OCR API] 回應內容: {api_result}")
+                except Exception as json_error:
+                    print(f"[OCR API] JSON 解析失敗: {json_error}")
+                    print(f"[OCR API] 原始回應: {response.text}")
+                    return None, {"error": f"JSON 解析失敗: {json_error}"}
                 
                 if api_result.get("status") == "completed":
                     # 預處理數值型欄位
