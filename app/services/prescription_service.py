@@ -79,14 +79,13 @@ class PrescriptionService:
         
         try:
             # 組員的 OCR API 端點
-            # api_url = "https://gpu-543976352117.us-central1.run.app"
             api_url = "https://ocr-23010935669.asia-east1.run.app/"
             
             print(f"[OCR API] 開始調用 API: {api_url}")
             
-            # 準備請求資料
+            # 準備請求資料 - 嘗試兩種參數名稱以提高兼容性
             files = {
-                'image': ('prescription.jpg', image_bytes, 'image/jpeg')
+                'file': ('prescription.jpg', image_bytes, 'image/jpeg')  # 使用 'file' 參數名稱
             }
             
             # 發送請求
