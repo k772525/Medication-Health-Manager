@@ -12,6 +12,9 @@ import string
 import time
 import pytz
 
+# 設定亞洲台北時區
+ASIA_TAIPEI = ZoneInfo("Asia/Taipei")
+
 # --- 資料庫連線管理 ---
 
 def get_db_connection():
@@ -54,9 +57,7 @@ class DB:
     def save_simple_state(user_id, state_value, minutes_to_expire=5):
         db = get_db_connection()
         if not db: return
-        tz_name = os.getenv("TZ", "UTC")
-        tz = pytz.timezone(tz_name)
-        expires_at = datetime.now(tz) + timedelta(minutes=minutes_to_expire)
+        expires_at = datetime.now(ASIA_TAIPEI) + timedelta(minutes=minutes_to_expire)
         with db.cursor() as cursor:
             query = "REPLACE INTO state (recorder_id, state, expires_at) VALUES (%s, %s, %s)"
             cursor.execute(query, (user_id, state_value, expires_at))
@@ -67,7 +68,7 @@ class DB:
         db = get_db_connection()
         if not db: return None
         with db.cursor() as cursor:
-            query = "SELECT state FROM state WHERE recorder_id=%s AND expires_at > UTC_TIMESTAMP()"
+            query = "SELECT state FROM state WHERE recorder_id=%s AND expires_at > NOW()"
             cursor.execute(query, (user_id,))
             row = cursor.fetchone()
             return row['state'] if row else None
@@ -226,7 +227,7 @@ class DB:
         db = get_db_connection()
         if not db: return None
         with db.cursor() as cursor:
-            query = "SELECT recorder_id FROM state WHERE state=%s AND expires_at > UTC_TIMESTAMP()"
+            query = "SELECT recorder_id FROM state WHERE state=%s AND expires_at > NOW()"
             cursor.execute(query, (code,))
             row = cursor.fetchone()
             return row['recorder_id'] if row else None
@@ -772,9 +773,15 @@ class DB:
                     cursor.execute("INSERT INTO users (recorder_id, user_name) VALUES (%s, %s)", 
                                  (log_data['recorderId'], user_name))
                 
-                # 準備健康記錄資料
+                # 準備健康記錄資料 - 使用亞洲時區
+                record_time = datetime.fromisoformat(log_data['record_time'].replace('Z', '+00:00'))
+                # 轉換為亞洲台北時間
+                if record_time.tzinfo is None:
+                    record_time = record_time.replace(tzinfo=timezone.utc)
+                asia_time = record_time.astimezone(ASIA_TAIPEI)
+                
                 fields = ['recorder_id', 'target_person', 'record_time']
-                values = [log_data['recorderId'], log_data['targetPerson'], datetime.fromisoformat(log_data['record_time'].replace('Z', '+00:00'))]
+                values = [log_data['recorderId'], log_data['targetPerson'], asia_time]
                 
                 print(f"基本欄位: {fields}")
                 print(f"基本數值: {values}")

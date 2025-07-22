@@ -272,6 +272,10 @@ def handle(event):
 # 保持所有原有的函數...
 def handle_text_message(event, user_id):
     """處理文字訊息"""
+    if not hasattr(event.message, 'text') or event.message.text is None:
+        print(f"⚠️ [prescription_handler] 收到空的文字訊息")
+        return
+    
     text = event.message.text.strip()
     reply_token = event.reply_token
     
