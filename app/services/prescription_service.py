@@ -42,7 +42,7 @@ class PrescriptionService:
 
             # 檢查用戶是否選擇了特定的模型
             user_state = UserService.get_user_complex_state(user_id) or {}
-            selected_model = user_state.get('selected_model', 'api_ocr')  # 暫時改為預設使用 OCR API
+            selected_model = user_state.get('selected_model', 'smart_filter')
             
             print(f"[Prescription] 分析模型: {selected_model}")
             
@@ -50,6 +50,13 @@ class PrescriptionService:
                 # 使用組員的 OCR API
                 print(f"[Prescription] 使用快速識別模式")
                 analysis_result, usage_info = PrescriptionService.call_ocr_api(image_bytes_list[0])
+                
+                # 如果 OCR API 失敗，自動切換到智能分析模式
+                if analysis_result is None and usage_info.get("error"):
+                    print(f"[Prescription] OCR API 失敗，自動切換到智能分析模式: {usage_info.get('error')}")
+                    analysis_result, usage_info = ai_processor.run_analysis(
+                        image_bytes_list, db_config, api_key
+                    )
             else:
                 # 使用智能篩選版 AI 分析（預設）
                 print(f"[Prescription] 使用智能分析模式")
@@ -78,14 +85,14 @@ class PrescriptionService:
         import json
         
         try:
-            # 組員的 OCR API 端點 - 嘗試不同的端點路徑
+            # 組員的 OCR API 端點
             api_url = "https://ocr-23010935669.asia-east1.run.app/predict"
             
             print(f"[OCR API] 開始調用 API: {api_url}")
             
-            # 準備請求資料 - 嘗試兩種參數名稱以提高兼容性
+            # 準備請求資料
             files = {
-                'file': ('prescription.jpg', image_bytes, 'image/jpeg')  # 使用 'file' 參數名稱
+                'file': ('prescription.jpg', image_bytes, 'image/jpeg')
             }
             
             # 發送請求
@@ -117,6 +124,7 @@ class PrescriptionService:
                 
             else:
                 print(f"[OCR API] API 調用失敗: {response.status_code}")
+                print(f"[OCR API] 回應內容: {response.text}")
                 return None, {"error": f"API 調用失敗: {response.status_code}"}
                 
         except requests.exceptions.Timeout:
@@ -125,6 +133,7 @@ class PrescriptionService:
         except Exception as e:
             print(f"[OCR API] API 調用錯誤: {e}")
             return None, {"error": f"API 調用錯誤: {str(e)}"}
+    
     
     @staticmethod
     def convert_api_result_to_standard_format(api_result):
