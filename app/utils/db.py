@@ -9,6 +9,7 @@ from zoneinfo import ZoneInfo
 import random
 import string
 import time
+import pytz
 
 # --- 資料庫連線管理 ---
 
@@ -52,7 +53,9 @@ class DB:
     def save_simple_state(user_id, state_value, minutes_to_expire=5):
         db = get_db_connection()
         if not db: return
-        expires_at = datetime.now(timezone.utc) + timedelta(minutes=minutes_to_expire)
+        tz_name = os.getenv("TZ", "UTC")
+        tz = pytz.timezone(tz_name)
+        expires_at = datetime.now(tz) + timedelta(minutes=minutes_to_expire)
         with db.cursor() as cursor:
             query = "REPLACE INTO state (recorder_id, state, expires_at) VALUES (%s, %s, %s)"
             cursor.execute(query, (user_id, state_value, expires_at))
