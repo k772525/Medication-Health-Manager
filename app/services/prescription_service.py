@@ -42,7 +42,7 @@ class PrescriptionService:
 
             # 檢查用戶是否選擇了特定的模型
             user_state = UserService.get_user_complex_state(user_id) or {}
-            selected_model = user_state.get('selected_model', 'smart_filter')
+            selected_model = user_state.get('selected_model', 'api_ocr')  # 暫時改為預設使用 OCR API
             
             print(f"[Prescription] 分析模型: {selected_model}")
             
