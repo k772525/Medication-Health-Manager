@@ -78,8 +78,8 @@ class PrescriptionService:
         import json
         
         try:
-            # 組員的 OCR API 端點
-            api_url = "https://ocr-23010935669.asia-east1.run.app/"
+            # 組員的 OCR API 端點 - 嘗試不同的端點路徑
+            api_url = "https://ocr-23010935669.asia-east1.run.app/predict"
             
             print(f"[OCR API] 開始調用 API: {api_url}")
             
