@@ -50,13 +50,6 @@ class PrescriptionService:
                 # 使用組員的 OCR API
                 print(f"[Prescription] 使用快速識別模式")
                 analysis_result, usage_info = PrescriptionService.call_ocr_api(image_bytes_list[0])
-                
-                # 如果 OCR API 失敗，自動切換到智能分析模式
-                if analysis_result is None and usage_info.get("error"):
-                    print(f"[Prescription] OCR API 失敗，自動切換到智能分析模式: {usage_info.get('error')}")
-                    analysis_result, usage_info = ai_processor.run_analysis(
-                        image_bytes_list, db_config, api_key
-                    )
             else:
                 # 使用智能篩選版 AI 分析（預設）
                 print(f"[Prescription] 使用智能分析模式")
