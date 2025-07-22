@@ -69,6 +69,11 @@ def handle_message_dispatcher(event):
 
     if not isinstance(event.message, TextMessage):
         return
+    
+    # 檢查文字訊息是否為空
+    if not hasattr(event.message, 'text') or event.message.text is None:
+        print(f"⚠️ [line_webhook] 收到空的文字訊息")
+        return
         
     text = event.message.text.strip()
     print(f"🔍 [DEBUG] 收到文字訊息: '{text}', 用戶: {user_id}")

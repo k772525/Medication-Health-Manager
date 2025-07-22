@@ -340,7 +340,7 @@ def handle_text_message(event, user_id):
         return
     
     # 處理 LIFF 上傳成功訊息
-    if "照片上傳成功" in text and "正在分析中" in text:
+    if text and "照片上傳成功" in text and "正在分析中" in text:
         # 啟動載入動畫
         start_loading_animation(user_id, seconds=60)
         
@@ -382,7 +382,7 @@ def handle_text_message(event, user_id):
         return
     
     # 處理跳過提醒設定的訊息
-    if text == "跳過提醒設定":
+    if text and text == "跳過提醒設定":
         _reply_message(reply_token, TextSendMessage(text="✅ 藥歷儲存完成！\n\n您可以隨時到「用藥提醒管理」為藥物設定提醒。"))
         return
     
