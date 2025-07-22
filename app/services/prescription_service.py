@@ -42,7 +42,10 @@ class PrescriptionService:
 
             # 檢查用戶是否選擇了特定的模型
             user_state = UserService.get_user_complex_state(user_id) or {}
-            selected_model = user_state.get('selected_model', 'smart_filter')
+            selected_model = user_state.get('selected_model')
+            
+            if not selected_model:
+                raise ValueError("請先選擇分析模型（智能分析或快速識別）")
             
             print(f"[Prescription] 分析模型: {selected_model}")
             
@@ -58,8 +61,11 @@ class PrescriptionService:
                 )
 
             if not analysis_result or not isinstance(analysis_result, dict) or 'medications' not in analysis_result:
-                error_detail = usage_info.get("error") if isinstance(usage_info, dict) else "未知AI錯誤"
-                raise RuntimeError(f"AI 分析失敗或回傳格式錯誤: {error_detail}")
+                error_detail = usage_info.get("error") if isinstance(usage_info, dict) else "未知錯誤"
+                if selected_model == 'api_ocr':
+                    raise RuntimeError(f"快速識別失敗: {error_detail}")
+                else:
+                    raise RuntimeError(f"智能分析失敗: {error_detail}")
 
             last_task_info["results"] = analysis_result
             full_state["last_task"] = last_task_info
