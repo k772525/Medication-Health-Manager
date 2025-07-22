@@ -57,8 +57,8 @@ class DB:
     def save_simple_state(user_id, state_value, minutes_to_expire=5):
         db = get_db_connection()
         if not db: return
-        # 使用 UTC 時間儲存，配合資料庫的 UTC_TIMESTAMP() 函數
-        expires_at = datetime.now(timezone.utc) + timedelta(minutes=minutes_to_expire)
+        # 使用亞洲台北時間儲存
+        expires_at = datetime.now(ASIA_TAIPEI) + timedelta(minutes=minutes_to_expire)
         with db.cursor() as cursor:
             query = "REPLACE INTO state (recorder_id, state, expires_at) VALUES (%s, %s, %s)"
             cursor.execute(query, (user_id, state_value, expires_at))
@@ -69,7 +69,7 @@ class DB:
         db = get_db_connection()
         if not db: return None
         with db.cursor() as cursor:
-            query = "SELECT state FROM state WHERE recorder_id=%s AND expires_at > UTC_TIMESTAMP()"
+            query = "SELECT state FROM state WHERE recorder_id=%s AND expires_at > NOW()"
             cursor.execute(query, (user_id,))
             row = cursor.fetchone()
             return row['state'] if row else None
@@ -228,7 +228,7 @@ class DB:
         db = get_db_connection()
         if not db: return None
         with db.cursor() as cursor:
-            query = "SELECT recorder_id FROM state WHERE state=%s AND expires_at > UTC_TIMESTAMP()"
+            query = "SELECT recorder_id FROM state WHERE state=%s AND expires_at > NOW()"
             cursor.execute(query, (code,))
             row = cursor.fetchone()
             return row['recorder_id'] if row else None
