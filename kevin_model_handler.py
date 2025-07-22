@@ -36,7 +36,7 @@ elif GOOGLE_APPLICATION_CREDENTIALS and GOOGLE_APPLICATION_CREDENTIALS.startswit
         print("    - [Kevin模型] 警告：GOOGLE_APPLICATION_CREDENTIALS 不是有效的 JSON")
 # 在 Cloud Run 中，如果沒有設定 GOOGLE_APPLICATION_CREDENTIALS，會使用預設的服務帳戶
 # 這是 kevin_api.py 中定義的 API 端點
-KEVIN_API_URL = "https://detect-api-self.wenalyzer.xyz/detect"
+KEVIN_API_URL = "https://kevin-712800774423.us-central1.run.app"
 
 def _upload_to_gcs(image_bytes, suffix='annotated.jpg'):
     """
