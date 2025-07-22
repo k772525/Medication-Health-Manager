@@ -66,6 +66,10 @@ def handle_prescription_model_select(event, data):
         user_state['stage'] = 'model_selected'
         result = UserService.set_user_complex_state(user_id, user_state)
         
+        print(f"[Model Select] 用戶 {user_id} 選擇模型: {model_type}")
+        print(f"[Model Select] 狀態保存結果: {result}")
+        print(f"[Model Select] 保存後的狀態: {UserService.get_user_complex_state(user_id)}")
+        
         if not result:
             current_app.logger.error(f"無法設置用戶狀態: {user_id}")
             _reply_message(event.reply_token, TextSendMessage(text="系統初始化失敗，請稍後再試。"))
@@ -118,8 +122,18 @@ def handle(event):
             if action == 'select_patient_for_scan':
                 member_name = data.get('member', [None])[0]
                 if member_name:
-                    state = {"state_info": {"state": "AWAITING_IMAGE"}, "last_task": {"member": member_name}}
+                    # 保留現有狀態，特別是 selected_model
+                    existing_state = UserService.get_user_complex_state(user_id) or {}
+                    state = {
+                        "state_info": {"state": "AWAITING_IMAGE"}, 
+                        "last_task": {"member": member_name},
+                        "selected_model": existing_state.get('selected_model')  # 保留選擇的模型
+                    }
                     result = UserService.set_user_complex_state(user_id, state)
+                    
+                    print(f"[Member Select] 用戶 {user_id} 選擇成員: {member_name}")
+                    print(f"[Member Select] 保留的模型: {existing_state.get('selected_model')}")
+                    print(f"[Member Select] 更新後狀態: {state}")
                     
                     if not result:
                         current_app.logger.error(f"無法設置用戶狀態: {user_id}")
