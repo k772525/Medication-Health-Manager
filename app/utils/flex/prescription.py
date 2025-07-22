@@ -345,7 +345,7 @@ def generate_analysis_report_messages(analysis_result: dict, frequency_map: dict
         drug_name = drug.get("drug_name_zh") or drug.get("drug_name_en") or "(未命名藥物)"
         main_use = drug.get("main_use") or "請參考藥袋說明"
         side_effects = drug.get("side_effects") or "請參考藥袋說明"
-        dosage = drug.get('dose_quantity', "劑量未知").strip()
+        dosage = str(drug.get('dose_quantity') or "劑量未知").strip()
         
         count_code = drug.get('frequency_count_code')
         count_text = frequency_map.get(count_code, {}).get('frequency_name', '')
@@ -357,7 +357,7 @@ def generate_analysis_report_messages(analysis_result: dict, frequency_map: dict
         
         # 檢查是否有藥品圖片，如果有則添加 hero 區塊
         image_url = drug.get('image_url')
-        if image_url and image_url.strip():
+        if image_url and str(image_url).strip():
             bubble_components['hero'] = ImageComponent(
                 url=image_url,
                 size="full",

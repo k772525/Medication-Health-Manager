@@ -11,7 +11,7 @@ def convert_minguo_to_gregorian(date_str: str | None) -> str | None:
     if not date_str:
         return None
         
-    date_str = str(date_str).strip()
+    date_str = str(date_str or "").strip()
     
     # 使用更寬鬆的正則表達式匹配 YYY.MM.DD 或 YYY-MM-DD 等格式
     match = re.match(r'(\d{2,3})[.\s/-年](\d{1,2})[.\s/-月](\d{1,2})', date_str)
