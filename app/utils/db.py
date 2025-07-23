@@ -18,19 +18,32 @@ ASIA_TAIPEI = ZoneInfo("Asia/Taipei")
 # --- 資料庫連線管理 ---
 
 def get_db_connection():
-    """從 Flask 的 g 物件取得資料庫連線，若不存在則建立一個。"""
+    """從 Flask 的 g 物件取得資料庫連線，若不存在則透過 Cloud SQL Unix socket 建立。"""
     try:
         if 'db' not in g:
-            g.db = pymysql.connect(
-                host=os.environ.get('DB_HOST'),
-                user=os.environ.get('DB_USER'),
-                password=os.environ.get('DB_PASS'),
-                database=os.environ.get('DB_NAME'),
-                port=int(os.environ.get('DB_PORT', 3306)),
-                charset='utf8mb4',
-                cursorclass=pymysql.cursors.DictCursor,
-                connect_timeout=10
-            )
+            if os.environ.get("DB_SOCKET_PATH"):
+                # 使用 Cloud SQL Auth Proxy 的 Unix socket 路徑
+                g.db = pymysql.connect(
+                    user=os.environ.get('DB_USER'),
+                    password=os.environ.get('DB_PASS'),
+                    database=os.environ.get('DB_NAME'),
+                    unix_socket=os.environ.get('DB_SOCKET_PATH'),
+                    charset='utf8mb4',
+                    cursorclass=pymysql.cursors.DictCursor,
+                    connect_timeout=10
+                )
+            else:
+                # fallback: 一般 host-based 連線（例如本機測試用）
+                g.db = pymysql.connect(
+                    host=os.environ.get('DB_HOST'),
+                    user=os.environ.get('DB_USER'),
+                    password=os.environ.get('DB_PASS'),
+                    database=os.environ.get('DB_NAME'),
+                    port=int(os.environ.get('DB_PORT', 3306)),
+                    charset='utf8mb4',
+                    cursorclass=pymysql.cursors.DictCursor,
+                    connect_timeout=10
+                )
         return g.db
     except pymysql.MySQLError as e:
         print(f"資料庫連線錯誤: {e}")
