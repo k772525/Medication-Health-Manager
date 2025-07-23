@@ -65,19 +65,9 @@ class Config:
             'LINE_CHANNEL_ACCESS_TOKEN', 'LINE_CHANNEL_SECRET', 'LIFF_CHANNEL_ID', 'YOUR_BOT_ID',
             'LIFF_ID_CAMERA', 'LIFF_ID_EDIT', 'LIFF_ID_PRESCRIPTION_REMINDER', 'LIFF_ID_MANUAL_REMINDER', 'LIFF_ID_HEALTH_FORM',
             'LINE_LOGIN_CHANNEL_ID', 'LINE_LOGIN_CHANNEL_SECRET',
-            'GEMINI_API_KEY'
+            'GEMINI_API_KEY',
+            'DB_HOST', 'DB_USER', 'DB_PASS', 'DB_NAME', 'DB_PORT'
         ]
-        
-        # 資料庫相關變數 - 支援兩種連線方式
-        db_vars = ['DB_USER', 'DB_PASS', 'DB_NAME']
-        if os.environ.get('DB_SOCKET_PATH'):
-            # 使用 Unix Socket 連線
-            db_vars.append('DB_SOCKET_PATH')
-        else:
-            # 使用 TCP 連線
-            db_vars.extend(['DB_HOST', 'DB_PORT'])
-        
-        required_vars.extend(db_vars)
         
         # 可選但建議設定的變數
         optional_vars = [
