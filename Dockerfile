@@ -36,4 +36,6 @@ EXPOSE 8080
 # --- 核心修正 ---
 # 啟動 Gunicorn，並告訴它從 run.py 檔案中尋找名為 app 的變數
 # 同時設定一個合理的超時時間 (例如 300 秒)
-CMD exec gunicorn --bind :$PORT --workers 1 --threads 8 --timeout 300 run:app
+# 臨時使用簡化的測試啟動
+COPY tmp_rovodev_test_run.py /app/test_run.py
+CMD python test_run.py
