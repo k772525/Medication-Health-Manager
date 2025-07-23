@@ -148,7 +148,7 @@ jobs:
         # 使用 base64 編碼來安全傳遞 GCP 憑證
         echo "GCP_CREDENTIALS_BASE64: \"$(echo '${{ secrets.GOOGLE_APPLICATION_CREDENTIALS }}' | base64 -w 0)\"" >> env_vars.yaml
         echo "GOOGLE_APPLICATION_CREDENTIALS: \"/app/gcp-credentials.json\"" >> env_vars.yaml
-        echo "DB_HOST: \"${{ secrets.DB_HOST }}\"" >> env_vars.yaml
+        echo "DB_SOCKET_PATH: \"/cloudsql/gcp1-462701:us-central1:pill-test-instance\"" >> env_vars.yaml
         echo "DB_USER: \"${{ secrets.DB_USER }}\"" >> env_vars.yaml
         echo "DB_PASS: \"${{ secrets.DB_PASS }}\"" >> env_vars.yaml
         echo "DB_NAME: \"${{ secrets.DB_NAME }}\"" >> env_vars.yaml
@@ -171,7 +171,8 @@ jobs:
           --concurrency 10 \
           --max-instances 5 \
           --min-instances 1 \
-          --env-vars-file env_vars.yaml
+          --env-vars-file env_vars.yaml \
+          --add-cloudsql-instances gcp1-462701:us-central1:pill-test-instance
         
     - name: Get service URL
       id: url
