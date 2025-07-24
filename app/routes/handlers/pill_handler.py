@@ -35,7 +35,7 @@ user_states = {}
 AVAILABLE_MODELS = {
     "1": {
         "name": "高精度",
-        "url": "https://pill-detection-api-712800774423.us-central1.run.app"
+        "url": "https://fastapi-712800774423.us-central1.run.app"
     },
     "2": {
         "name": "高效率", 
