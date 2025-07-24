@@ -39,7 +39,7 @@ AVAILABLE_MODELS = {
     },
     "2": {
         "name": "高效率", 
-        "url": "https://fastapiv11-712800774423.us-central1.run.app"
+        "url": "https://yolo110724-712800774423.us-central1.run.app"
     }
 }
 
