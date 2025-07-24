@@ -52,12 +52,8 @@ def handle_message_dispatcher(event):
     # 【核心修正】将图片讯息的处理，也纳入状态判断流程
     if isinstance(event.message, ImageMessage):
         # 优先检查是否为药丸辨识状态
-        try:
-            from .handlers import pill_handler as ph
-            if ph and ph.handle_image_message(event):
-                return
-        except ImportError:
-            pass
+        if pill_handler and pill_handler.handle_image_message(event):
+            return
         
         # 然后检查是否为药单辨识状态
         if complex_state.get("state_info", {}).get("state") == "AWAITING_IMAGE":
