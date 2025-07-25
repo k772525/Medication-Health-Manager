@@ -39,12 +39,12 @@ class Config:
     GCS_BUCKET_NAME = os.environ.get('GCS_BUCKET_NAME')
     
     
-    # --- 药丸辨识 API 設定 ---
-    PILL_API_URLS = [
-        "https://line-bot-712800774423.us-central1.run.app",
-        "https://line-bot2-712800774423.us-central1.run.app", 
-        "https://detect-api-self.wenalyzer.xyz/detect"
-    ]
+    # # --- 药丸辨识 API 設定 ---
+    # PILL_API_URLS = [
+    #     "https://line-bot-712800774423.us-central1.run.app",
+    #     "https://line-bot2-712800774423.us-central1.run.app", 
+    #     "https://detect-api-self.wenalyzer.xyz/detect"
+    # ]
     
     # --- MySQL 資料庫設定 ---
     DB_HOST = os.environ.get('DB_HOST')
