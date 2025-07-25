@@ -123,44 +123,34 @@ jobs:
         echo "Deploying to Cloud Run..."
         echo "Service name: $SERVICE_NAME"
         echo "Image: $REGION-docker.pkg.dev/$PROJECT_ID/$REPOSITORY_NAME/$IMAGE_NAME:$GITHUB_SHA"
-        
-        # 檢查服務是否已存在
-        if gcloud run services describe $SERVICE_NAME --region=$REGION >/dev/null 2>&1; then
-          echo "✅ Service $SERVICE_NAME exists, updating..."
-        else
-          echo "🆕 Service $SERVICE_NAME does not exist, creating new service..."
-        fi
-        
-        # 使用逐行寫入方式創建環境變數文件
-        echo "LINE_CHANNEL_ACCESS_TOKEN: \"${{ secrets.LINE_CHANNEL_ACCESS_TOKEN }}\"" > env_vars.yaml
-        echo "LINE_CHANNEL_SECRET: \"${{ secrets.LINE_CHANNEL_SECRET }}\"" >> env_vars.yaml
-        echo "YOUR_BOT_ID: \"${{ secrets.YOUR_BOT_ID }}\"" >> env_vars.yaml
-        echo "LIFF_CHANNEL_ID: \"${{ secrets.LIFF_CHANNEL_ID }}\"" >> env_vars.yaml
-        echo "LIFF_ID_CAMERA: \"${{ secrets.LIFF_ID_CAMERA }}\"" >> env_vars.yaml
-        echo "LIFF_ID_EDIT: \"${{ secrets.LIFF_ID_EDIT }}\"" >> env_vars.yaml
-        echo "LIFF_ID_PRESCRIPTION_REMINDER: \"${{ secrets.LIFF_ID_PRESCRIPTION_REMINDER }}\"" >> env_vars.yaml
-        echo "LIFF_ID_MANUAL_REMINDER: \"${{ secrets.LIFF_ID_MANUAL_REMINDER }}\"" >> env_vars.yaml
-        echo "LIFF_ID_HEALTH_FORM: \"${{ secrets.LIFF_ID_HEALTH_FORM }}\"" >> env_vars.yaml
-        echo "LINE_LOGIN_CHANNEL_ID: \"${{ secrets.LINE_LOGIN_CHANNEL_ID }}\"" >> env_vars.yaml
-        echo "LINE_LOGIN_CHANNEL_SECRET: \"${{ secrets.LINE_LOGIN_CHANNEL_SECRET }}\"" >> env_vars.yaml
-        echo "GEMINI_API_KEY: \"${{ secrets.GEMINI_API_KEY }}\"" >> env_vars.yaml
-        echo "GCS_BUCKET_NAME: \"${{ secrets.GCS_BUCKET_NAME }}\"" >> env_vars.yaml
-        # 使用 base64 編碼來安全傳遞 GCP 憑證
-        echo "GCP_CREDENTIALS_BASE64: \"$(echo '${{ secrets.GOOGLE_APPLICATION_CREDENTIALS }}' | base64 -w 0)\"" >> env_vars.yaml
-        echo "GOOGLE_APPLICATION_CREDENTIALS: \"/app/gcp-credentials.json\"" >> env_vars.yaml
-        echo "DB_SOCKET_PATH: \"${{ secrets.DB_SOCKET_PATH }}\"" >> env_vars.yaml
-        echo "DB_HOST: \"${{ secrets.DB_HOST }}\"" >> env_vars.yaml
-        echo "DB_USER: \"${{ secrets.DB_USER }}\"" >> env_vars.yaml
-        echo "DB_PASS: \"${{ secrets.DB_PASS }}\"" >> env_vars.yaml
-        echo "DB_NAME: \"${{ secrets.DB_NAME }}\"" >> env_vars.yaml
-        echo "DB_PORT: \"${{ secrets.DB_PORT }}\"" >> env_vars.yaml
-        echo "SECRET_KEY: \"${{ secrets.SECRET_KEY }}\"" >> env_vars.yaml
-        echo "REMINDER_SECRET_TOKEN: \"${{ secrets.REMINDER_SECRET_TOKEN }}\"" >> env_vars.yaml
-        echo "ENABLE_PUSH_MESSAGES: \"true\"" >> env_vars.yaml
-        
-        echo "Generated env_vars.yaml content:"
-        cat env_vars.yaml
-        
+
+        # 設定環境變數
+        # 注意：我們將不再使用 DB_HOST 和 DB_PORT，因為我們將透過 Cloud SQL Auth Proxy 的 socket 連線
+        # DB_SOCKET_PATH 將由 --add-cloudsql-instances 參數自動設定的路徑構成
+        ENV_VARS="LINE_CHANNEL_ACCESS_TOKEN='${{ secrets.LINE_CHANNEL_ACCESS_TOKEN }}'"
+        ENV_VARS="$ENV_VARS,LINE_CHANNEL_SECRET='${{ secrets.LINE_CHANNEL_SECRET }}'"
+        ENV_VARS="$ENV_VARS,YOUR_BOT_ID='${{ secrets.YOUR_BOT_ID }}'"
+        ENV_VARS="$ENV_VARS,LIFF_CHANNEL_ID='${{ secrets.LIFF_CHANNEL_ID }}'"
+        ENV_VARS="$ENV_VARS,LIFF_ID_CAMERA='${{ secrets.LIFF_ID_CAMERA }}'"
+        ENV_VARS="$ENV_VARS,LIFF_ID_EDIT='${{ secrets.LIFF_ID_EDIT }}'"
+        ENV_VARS="$ENV_VARS,LIFF_ID_PRESCRIPTION_REMINDER='${{ secrets.LIFF_ID_PRESCRIPTION_REMINDER }}'"
+        ENV_VARS="$ENV_VARS,LIFF_ID_MANUAL_REMINDER='${{ secrets.LIFF_ID_MANUAL_REMINDER }}'"
+        ENV_VARS="$ENV_VARS,LIFF_ID_HEALTH_FORM='${{ secrets.LIFF_ID_HEALTH_FORM }}'"
+        ENV_VARS="$ENV_VARS,LINE_LOGIN_CHANNEL_ID='${{ secrets.LINE_LOGIN_CHANNEL_ID }}'"
+        ENV_VARS="$ENV_VARS,LINE_LOGIN_CHANNEL_SECRET='${{ secrets.LINE_LOGIN_CHANNEL_SECRET }}'"
+        ENV_VARS="$ENV_VARS,GEMINI_API_KEY='${{ secrets.GEMINI_API_KEY }}'"
+        ENV_VARS="$ENV_VARS,GCS_BUCKET_NAME='${{ secrets.GCS_BUCKET_NAME }}'"
+        ENV_VARS="$ENV_VARS,GCP_CREDENTIALS_BASE64='$(echo '${{ secrets.GOOGLE_APPLICATION_CREDENTIALS }}' | base64 -w 0)'"
+        ENV_VARS="$ENV_VARS,GOOGLE_APPLICATION_CREDENTIALS='/app/gcp-credentials.json'"
+        ENV_VARS="$ENV_VARS,DB_USER='${{ secrets.DB_USER }}'"
+        ENV_VARS="$ENV_VARS,DB_PASS='${{ secrets.DB_PASS }}'"
+        ENV_VARS="$ENV_VARS,DB_NAME='${{ secrets.DB_NAME }}'"
+        ENV_VARS="$ENV_VARS,SECRET_KEY='${{ secrets.SECRET_KEY }}'"
+        ENV_VARS="$ENV_VARS,REMINDER_SECRET_TOKEN='${{ secrets.REMINDER_SECRET_TOKEN }}'"
+        ENV_VARS="$ENV_VARS,ENABLE_PUSH_MESSAGES='true'"
+        # 設定 Cloud SQL Auth Proxy 的 socket 路徑
+        ENV_VARS="$ENV_VARS,DB_SOCKET_PATH='/cloudsql/${{ secrets.CLOUD_SQL_INSTANCE }}'"
+
         gcloud run deploy $SERVICE_NAME \
           --image $REGION-docker.pkg.dev/$PROJECT_ID/$REPOSITORY_NAME/$IMAGE_NAME:$GITHUB_SHA \
           --platform managed \
@@ -172,7 +162,7 @@ jobs:
           --concurrency 10 \
           --max-instances 5 \
           --min-instances 1 \
-          --env-vars-file env_vars.yaml \
+          --set-env-vars "$ENV_VARS" \
           --add-cloudsql-instances ${{ secrets.CLOUD_SQL_INSTANCE }}
         
     - name: Get service URL
